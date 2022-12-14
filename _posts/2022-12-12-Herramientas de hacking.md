@@ -1,7 +1,7 @@
 ---
 layout: single  
 title: Herramientas de hacking.
-excerpt: "Son herramientas utilizadas para realizar pruebas de penetración en sistemas y redes para detectar vulnerabilidades y mejorar la ciberseguridad."
+excerpt: "Las herramientas de hacking son utilizadas para realizar pruebas de penetración en sistemas y redes para detectar vulnerabilidades y mejorar la ciberseguridad."
 date: 2022-12-12  
 classes: wide
 header:
@@ -14,7 +14,7 @@ tags:
 - Fuzzing
 ---
 
-Este tipo de herramientas son utilizadas para detectar y corregir vulnerabilidades antes de que pueden ser explotadas por ciberdelincuentes.<br>Tener una gran variedad de herramientas de hacking te permitirá tener mas alcance al aplicar reconocimiento y explotación de vulnerabilidades ya sea en auditorias o en entornos controlados.<br>
+Las herramientas de hacking son utilizadas para detectar y corregir vulnerabilidades antes de que pueden ser explotadas por ciberdelincuentes. Tener una gran variedad de herramientas de hacking te permitirá tener mas alcance al aplicar reconocimiento y explotación de vulnerabilidades ya sea en auditorias o en entornos controlados.<br>
 
 ## Nmap.
 Es una herramienta utilizada escanear sistemas y redes con el fin de detectar los dispositivos conectados y su configuración asi como los servicios que se estan ejecutando. Tambien puede ser utilizada para detectar vulnerabilidades en los dispositivos encontrados, información sobre el sistema operativo y descubrir puertos abiertos.<br>
@@ -130,12 +130,39 @@ whatweb http://<nombre del sitio web>
 ```
 <br><br>
 ## Smbmap.
-
+smbmap sirve para escanear y enumerar recursos compratidos de red en un host SMB(Server Message Block). Tambien puedes descargar archivos y realizar ataques de fuerza bruta a cuentas de usuarios  en un sistema SMB. Smbmap se instala con `` sudo apt install smbmap ``
+```
+smbmap -H <ip-address> # Enumerar recursos compartidos.
+smbmap -H <ip-address> -u 'null' # Enumerar recursos haciendo uso de null session.
+smbmap -u <username> -p <password> --download <ruta/del/archivo> <ruta/donde/se/guardara/el/archivo> # Descargar un recurso de sistema
+smbmap -u <username> -p <password_list> <ip-address> # Fuerza bruta al protocola SMB.
+```
 <br><br>
 ## Smbclient.
+Al igual que smbmap, smbclient te permite enumerar los recursos compartidos que existen en un servidor SMB.<br>
+Instalar: `` sudo apt install smbclient ``<br>
 
+```
+smbclient -L <ip-address> -N # Listar los recursos compartidos de un servidor SMB disponibles para acceso anónimo.
+# -L -> Indica que quieres listar recuros.
+# -N -> Indica que no se desea proporcionar usuario y contraseña para autenticarse  en el servidor SMB.
+```
+En caso de que tengas este error al intentar listar los recursos del sistema "error: protocol negotiation failed: NT_STATUS_CONNECTION_DISCONNECTED" agrega esta linea al final del comando `` --option ' client min protocol = NT1 ' ``. Esto asegurará que la comunicaión del servidor SMB sea compatible con la del servidor estableciando el protocolo minimo NT1.
+```
+smbclient -L <ip-addess> -N --option 'client min protocol = NT1'
+```
+Comando para conectarse a un recurso compartido.
+```
+smbclient //<ip-addess>/tmp -N --option 'client min protocol = NT1' 
+# tmp es el nombre del recurso al cual se desea conectar, este puede ser sustituido por cualquier recurso disponible.
+```
 <br><br>
 ## Impacket-scripts.
+Es una biblioteca de scripts escritos en python utilizada para la seguridad informática. Estas herramientas son utilizadas para pruebas de penetración, ataques de red, analizar y extraer información de paquetes de red. Estos son algunos scripts incluidos en impacket-scripts;
+- secretsdump.py: Script utilizado para extraer contraseñas de hashes de Active Directory de diferentes fuentes, como archivos NTDS.dit o archivos SYSTEM.
+- wmiexec.py: Con este script puedes ejecutar comandos en un sistema remote a través del protocolo WMI(Windows Management Instrumentation).
+- smbserver.py: Script para crear un servidor SMB falso en tu equipo local y asi engañar a otros equipos en la red para que se conecten a el. Una vez establecida la conexión puedes capturar credenciales de inicio de sesión y datos sensibles enviados por los equipos.<br>Tambien puedes usar este script para montarte un servicio SMB y transferir archivos entre equipos.
+
 
 <br><br>
 ## Chisel.
