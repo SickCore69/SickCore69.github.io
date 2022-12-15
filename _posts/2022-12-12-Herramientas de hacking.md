@@ -164,20 +164,52 @@ Es una biblioteca de scripts escritos en python utilizada para la seguridad info
 - smbserver.py: Script para crear un servidor SMB falso en tu equipo local y asi engañar a otros equipos en la red para que se conecten a el. Una vez establecida la conexión puedes capturar credenciales de inicio de sesión y datos sensibles enviados por los equipos.<br>Tambien puedes usar este script para montarte un servicio SMB y transferir archivos entre equipos.
 
 
+```
+secretsdump.py <DC-ip-address> -u <username> -p <password>
+wmiexec.py <ip-address> -u <username> -p <password>
+smbserver.py 'nombre_del_recurso' 'ruta_del_recurso' -smb2support
+# nombre y ruta del recurso son opcionales sino se ponen se utilizan valores predeterminados.
+smbserver.py smbFolder $(pwd) -smb2support 
+```
 <br><br>
 ## Chisel.
+Es utilizado para crear túneles seguros entre dispositivos en una red. Chisel te permite conectarte de forma segura a un servidor remoto a tráves de un puerto no seguro. En el hacking chisel es usado a menudo para hacer port forwarding(enrutamiento de puertos) que consiste en redirigir el tráfico de un puerto a otro de una máquina remota o local.
+```
 
+```
 <br><br>
 ## Evil-winrm.
-
+Herramienta usada para conectarte al Administrador Remoto de Windows (Windows Remote Management) y ejecutar comandos.
+```
+evil-winrm -i <ip-address> -u '<username>' -p '<password>'
+```
 <br><br>
 ## Exiftool.
-
+Con exiftool puedes leer o editar los metadatos de archivos de imagen o vídeo, como la fecha y hora de creación, marca y modelo de la cámara asi como los permisos del archivo. Solo ejecutas la herramienta y le pasas el nombre del archivo para que te muestre la información.
+```
+exiftool image.jpg # Leer los metadatos.
+exiftool TAG=VALUE image.jpg # Editar metadatos de un archivo.
+# TAG -> Es el nombre del metadato que quieres modificar.
+# VALUE -> Es el contenido nuevo que tendra ese metadato.
+```
 <br><br>
 ## Crackmapexec.
+Herramienta diseñada para escanear y explotar vulnerabilidades en servidores de red y dispositivos. Con crackmapexec puedes conectarte a diferentes servidores (SMB, HTTP, SSH, RDP y mssql). Puedes ver información acerca del equipo, ver si un usuario y contraseña son válidos en el sistema, listar recursos compartidos o probar si un hash pertenece al usuario Administrador.
+```
+crackmapexec smb -s <ip-address/24> 	# Escaneo de vulnerabilidades a todo segmento de red en el  protocolo SMB.
 
+crackmapexec smb <ip-address> 		
+# Ver información acerca del equipo como la versión del sistema operativo, ver el nombre del dominio o si el SMB esta firmado.
+
+crackmapexec smb <ip-address> -u '<username>' -p '<password>'	# Ver si un usuario y contraseña son válidos en el sistema.
+
+crackmapexec smb <ip-address> -u 'null' -p ' ' --shares	
+# Listar los recursos compartidos en el sistema haciendo uso de un null session.
+
+crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'	# Verificar su el hash pertenece al usuario Administrador.
+```
 <br><br>
-## Gpg2john.
+## John The Ripper.
 
 <br><br>
 ## Wpscan.
