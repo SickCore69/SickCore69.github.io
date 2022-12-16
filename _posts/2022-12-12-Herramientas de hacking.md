@@ -130,7 +130,7 @@ whatweb http://<nombre del sitio web>
 ```
 <br><br>
 ## Smbmap.
-smbmap sirve para escanear y enumerar recursos compratidos de red en un host SMB(Server Message Block). Tambien puedes descargar archivos y realizar ataques de fuerza bruta a cuentas de usuarios  en un sistema SMB. Smbmap se instala con `` sudo apt install smbmap ``
+smbmap sirve para escanear y enumerar recursos compartidos de red en un host SMB(Server Message Block). Tambien puedes descargar archivos y realizar ataques de fuerza bruta a cuentas de usuarios  en un sistema SMB. Smbmap se instala con `` sudo apt install smbmap ``
 ```
 smbmap -H <ip-address> # Enumerar recursos compartidos.
 smbmap -H <ip-address> -u 'null' # Enumerar recursos haciendo uso de null session.
@@ -158,7 +158,8 @@ smbclient //<ip-addess>/tmp -N --option 'client min protocol = NT1'
 ```
 <br><br>
 ## Impacket-scripts.
-Es una biblioteca de scripts escritos en python utilizada para la seguridad informática. Estas herramientas son utilizadas para pruebas de penetración, ataques de red, analizar y extraer información de paquetes de red. Estos son algunos scripts incluidos en impacket-scripts;
+Es una biblioteca de scripts escritos en python utilizada para la seguridad informática. Estas herramientas son utilizadas para pruebas de penetración, ataques de red, analizar y extraer información de paquetes de red. Estos son algunos scripts incluidos en impacket-scripts.<br>
+Instalación: `` sudo apt install impacket-scripts ``
 - secretsdump.py: Script utilizado para extraer contraseñas de hashes de Active Directory de diferentes fuentes, como archivos NTDS.dit o archivos SYSTEM.
 - wmiexec.py: Con este script puedes ejecutar comandos en un sistema remote a través del protocolo WMI(Windows Management Instrumentation).
 - smbserver.py: Script para crear un servidor SMB falso en tu equipo local y asi engañar a otros equipos en la red para que se conecten a el. Una vez establecida la conexión puedes capturar credenciales de inicio de sesión y datos sensibles enviados por los equipos.<br>Tambien puedes usar este script para montarte un servicio SMB y transferir archivos entre equipos.
@@ -173,7 +174,8 @@ smbserver.py smbFolder $(pwd) -smb2support
 ```
 <br><br>
 ## Chisel.
-Es utilizado para crear túneles seguros entre dispositivos en una red. Chisel te permite conectarte de forma segura a un servidor remoto a tráves de un puerto no seguro. En el hacking chisel es usado a menudo para hacer port forwarding(enrutamiento de puertos) que consiste en redirigir el tráfico de un puerto a otro de una máquina remota o local.
+Es utilizado para crear túneles seguros entre dispositivos en una red. Chisel te permite conectarte de forma segura a un servidor remoto a tráves de un puerto no seguro. En el hacking chisel es usado a menudo para hacer port forwarding(enrutamiento de puertos) que consiste en redirigir el tráfico de un puerto a otro de una máquina remota o local.<br>
+Instalación: `` wget https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_arm64.gz ``
 ```
 
 ```
@@ -206,20 +208,58 @@ crackmapexec smb <ip-address> -u '<username>' -p '<password>'	# Ver si un usuari
 crackmapexec smb <ip-address> -u 'null' -p ' ' --shares	
 # Listar los recursos compartidos en el sistema haciendo uso de un null session.
 
-crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'	# Verificar su el hash pertenece al usuario Administrador.
+crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'	# Verificar si el hash pertenece al usuario Administrador.
 ```
 <br><br>
 ## John The Ripper.
+Herramienta utilizada para probar la seguridad de las contraseñas mediante el uso de diccionarios. John the ripper utiliza diferentes tipos de algoritmos para decifrar contraseñas como MD5, SHA1, SHA2, DES, Blowfish y AES.<br>
+Instalación: `` sudo apt install john ``<br>
+```
+john --wordlist=</ruta/del/diccionario/rockyou.txt> <hash>	# Descifrar un hash
 
+zip2john archivo.zip > archivo.zip.john		
+# Se genera un archivo compatible con john para poder crackear la contraseña con la cual fue cifrado el archivo.zip
+
+zip2john archivo.zip.john	# Ya solo ejecuta el comando para descifrar la contraseña
+
+rar2john archivo.rar
+rar2john archivo.rar.john
+```
 <br><br>
 ## Wpscan.
-
+Wpscan sirve para escanear sitios web basados en Wordpress y detectar vulnerabilidades y problemas de seguridad como vulnerabilidades de aplicaciones, de plugins y temas, y problemas de configuración.<br>
+Instalación: `` sudo apt install wpscan ``<br>
+```
+wpscan --url https://<ip-address>    # Escaneo para detectar problemas de configuración o vulnerabilidades.
+wpscan --url https://<nombre-dominio> --enumerate    # Enumerar usuarios, plugins y temas.
+wpscan --url http://<ip-address> -U <username> -P <pasword-list>    # Aplicar fuerza bruta. 
+```
 <br><br>
 ## Wafw00f.
-
+Esta herramienta detecta sistemas de proctección de aplicaciones web(Web Aplication Firewall) en una dirección IP o un sitio web para saber si se esta utilizando uno y en todo caso te muestra información detallada del tipo de WAF en uso inclutendo la versión y fabricante.<br>
+Instalación: `` sudo apt install wafw00f ``
+```
+wafw00f https://<ip-address>
+```
 <br><br>
 ## Gobuster.
+Sirve para detectar archivos, subdominios y directorios ocultos en un sitio web.<br>}
+Instalación: `` sudo apt install gobuster ``<br>
+```
+gobuster dir -t 200 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u https://<ip-address> -k
+# dir -> Indica que se desea realizar un escaneo en busca de directorios.
+# -t 200 -> Indica los hilos o las tareas que quieres que se ejecuten simultaneamente.
+# -w -> Especificar el diccionario.
+# -u -> Indicar la dirección IP o el nombre del dominio donde se realizará el escaneo.
+# -k -> Es para deshabilitar la verificación de certificados SSL. No se verificará si un certificado SSL es válido o no al reaizar las solicitudes HTTPS. 
 
+gobuster vhost -t 100 -w /usr/share/SecLists/Discovery/DNS/Subdomain-top1million-5000.txt --url https://<ip-address> -k
+# Escaneo para detectar subdominios en el sitio web.
+
+gobuster dir -t 150 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://<ip-address> -x php,html,txt,bak,backup,git,pdf
+# Escaneo para encontrar archivos ocultos.
+# -x -> Indica que se utlizará una lista de extensiones separadas por coma. Sino se especifica una entensión te mostrará todas las extensiones encontradas.
+```
 <br><br>
 ## Wfuzz.
 
