@@ -262,37 +262,137 @@ gobuster dir -t 150 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-
 ```
 <br><br>
 ## Wfuzz.
+Al igual que gobuster, wfuzz sirve para detectar archivos, subdominios y directorios en un sitio web. Wfuzz envía solicitudes HTTP a un servidor web y variando los parámetros de la solicitud de manera automática. Esto permite a wfuzz probar distintos valores para los parámetros y ver cómo el servidor web responde a ellos, lo que ayuda a detectar posibles vulnerabilidades.<br>
+Instalación: `` sudo apt install wfuzz ``
+```
+wfuzz -c  --hc=404 -t 200 -w diccioanrio.txt https://<ip-address> --ssl-ignore-cert
+# --ssl-ignore-cert -> Deshabilita la verificación del certificado SSL
+```
+```
+wfuzz -c -z file,password_list.txt --hs "password=FUZZ" http://dominio.com/login
+# -c -> Indica que se debe mostrar el progreso de la ejecución del comando. Esto puede ser útil si estás ejecutando una prueba
+que llevará mucho tiempo y quieres tener una idea de cómo va.
+# -z -> Indica a wfuzz que debe utilizar un archivo de datos específico como entrada para la prueba. En este caso, se utiliza
+el archivo "password_list.txt" como la lista de contraseñas a probar.
+# --hs -> Indica a wfuzz que debe incluir una cadena específica en la solicitud que envía al sitio. En este caso se utiliza 
+la cadena "password=FUZZ" para indicar que la contraseña de la lista debe reemplazarse en el parámetro "password" del 
+formulario de inicio de sesión.
 
+```
 <br><br>
 ## Node-serialize.
-
+node-serialize es una biblioteca de JavaScript diseñada para facilitar la serialización y deserialización de objetos. La serialización es el proceso de convertir un objeto en una representación de cadena de texto, mientras que la deserialización es el proceso de convertir una cadena de texto en un objeto. Esto es útil cuando se necesita guardar un objeto en una base de datos o enviarlo a través de la red.<br>
+Instalación: `` npm install nose-serialize ``
 <br><br>
-## Gdb.
-
+## Gdb(GNU Debugger).
+Es una herramienta de depuración de código fuente que se utiliza para examinar y depurar programas en diferentes lenguajes de programación. GDB te permite detener la ejecución de un programa en cualquier momento y examinar su estado, incluyendo variables, datos de memoria, establecer puntos de interrupción, evaluar expresiones y hacer seguimiento de la ejecución del programa linea por linea.
 <br><br>
 ## Hulk.py
-Hacer un ataque DOS.
+Hulk.py sirva para realizar pruebas de denegación de servicios(DOS) a un sitio web y asi probar su capacidad ante grandes cantidades de tráfico. Este script envía solicitudes HTTP simultáneamente con el objetivo de sobrecargar el servidor y evaluar el como responde ante la alta carga.<br>
+Instalación: `` wget https://github.com/grafov/hulk/blob/master/hulk.py ``
+```
+python3 hulk.py <url>
+```
 <br><br>
 ## Cupp.py
-Crear diccionarios de contraseñas con inforamción que le proporciones.
+Script de python que se utiliza para crear diccionarios personalizados y poder aplicar fuerza bruta. Tiene una seriede opciones que le permiten especificar el tipo de información que se incluirá, como nombres de usuario, palabras clave y patrones comunes de contraseñas.<br>
+Instalación: `` git clone https://github.com/Mebus/cupp ``
+```
+python3 cupp.py
+```
 <br><br>
-## Cewl.
-Crear diccionario de usuarios y contraseñas con la información de un sitio web.
-
+## Cewl (Command Engine World List).
+Herramienta para crear un diccionario de palabras a partir de la información disponible en un sitio web. Cewl escanea el sitio web y extrae palabras y frases que se pueden usar como contraseñas o palabras clave para utilizar fuerza bruta.<br>
+```
+cewl <url> -w <nombre-diccionario.txt>
+# -w <archivo.txt> -> Indica el nombre del archivo donde se almacenará la lista de palabras.
+# -m <número> -> Especificar el número mínimo de veces que una palabra debe aparecer en un sitio web para ser incluida en la lista.
+# -u <username>:<password> -> Permite especificar un usuario y contraseña para autenticarte en un sitio protegido por contraseña
+```
 <br><br>
-## Tcpdump.
-Ponerse en escucha
+## TCPDump.
+TCPDump es una herramienta que se utiliza para analizar y capturar tráfico de red. Es una herramienta de depuración y monitoreo de red utilizada por administradores de sistemas y profesionales de seguridad para realizar tareas como:<br>
+- Monitorear el tráfico de red en una red local o a través de una interfaz de red específica.
+- Depurar problemas de red y detectar problemas de rendimiento.
+- Analizar el tráfico de red para detectar posibles ataques o actividad sospechosa.
+- Guardar capturas de tráfico de red para su porterior análisis.
 
+
+Instalación:`` sudo apt install tcpdump ``<br>
+Para utilizar TCPDump, debes específicar  una serie de opciones y filtros para controlar que tipo de tráfico de red se captura y cómo se procesa.<br>Estos son algunos parámetros que puedes incluir en un monitoreo:
+* -i: Especifica la interfaz de red que se utilizará para capturar el tráfico. Por ejemplo, -i eth0 que capturaría el tráfico en la interfaz de red Ethernet 0.
+* -nn: muestra el número de puerto en lugar de los nombres de los servicios.
+* -s: Especifica el tamaño de la captura de paquetes. Ejemplo, -s 65535 capturaría paquetes completos de hasta 65535 bytes.
+* -c: Especifica el número de paquetes que se deben capturar. -c 100, capturaría los primeros 100 paquetes.
+* -w <archivo.txt>: Escribe la captura de paquetes en un archivo en lugar de mostrarlo en pantalla.
+* host <ip-address>: Filtra los paquetes que se envían o reciben desde un host. Ejemplo host 192.168.0.1 capturaría los paquetes que se envían desde el host con la dirección IP 192.168.0.1.
+* port <port>: Filtra los paquetes que utiliza un puerto. Ejemplo port 80 capturariá los paquetes que utilizan el puerto 80.
+
+```
+tcpdump -i <interfaz-de-red>
+# Monitoreo de del tráfico de  una red. 
+```
+```
+tcpdump -i tun0 icmp -n
+# Escuchar y capturar el tráfico ICMP(Internet Control Message Protocol) en la interfaz de red tun0 sin que se aplique la 
+resolución de nombres de host solo mostrando la dirección IP. Este comando es útil para saber si se puede entablar una 
+reverse shell.
+```
 <br><br>
 ## Aircrack-ng.
-Audotorias wifi
+Es una suite de herramientas de seguridad utilizada principalmente para la auditoria de seguridad de redes inalambricas y asi poderla proteger ante posibles ataques. Aircrack cuenta con herramientas para escanear redes, atacar redes inhalambricas protegidas por contraseña y recuperar claves de redes.<br>
+Estas son algunas de las herramientas que contiene la suite de aircrack-ng:<br>
+- airdump-ng: Permite escanear y capturar tráfico inalámbrico en una red.
+- airreplay-ng: Permite inyectar paquetes de tráfico en una red inalámbrica. 
+- aircrack-ng: Permite recuperar claves de redes inalámbricas protegidas por contraseña.
+- airmon-ng: Permite habilitar y deshabilitar el modo monitor en interfaces de red inalámbricas.
+- airodump-ng-oui-update: Permite actualizar la base de datos de identidicadores de organizaciones únicas (OUI) utilizados por aircrack-ng.
+- packetforge-ng: Permite crear paquetes de tráfico personalizados para inyectarlos en una red inalámbrica.
+- wesside-ng: Permite realizar paquetes de fuerza bruta a redes inalámbricas WEP.
+- besside-ng: Permite realizar ataques de fuerza bruta a redes inalámbricas WPA/WPA2.
+- airdecloak-ng: Permite descifrar tráfico WEP encriptado utilizando técnicas de "cloaking".
+- airtun-ng: Permite crear túneles VPN sobre redes inalámbricas.
+
+
+Instalación: `` sudo apt install aircrack-ng ``
+```
+airodump-ng <interface>
+# Escanear redes inalámbricas disponibles.
+```
+```
+airodump-ng --bssid <BSSID> -c <canal> <interface>
+# Capturar tráfico inalámbrico en una red específica.
+```
+```
+aireplay-ng --fakeauth 0 -a <BSSID> -h <mac-address> <interface>
+# Inyectar paquetes de tráfico en una red inalámbrica.
+```
+```
+aircrack-ng <capture_file>
+# Recuperar claves de redes inalámbricas protegidas por contraseña.
+
+airmon-ng start <interface>
+# Habilitar el modo monitor en una interfaz de red inalámbrica.
+
+airmon-ng stop <interface>
+# Deshabilitar el modo monitor en una interfaz de red inalámbrica.
+```
 
 <br><br>
 ## Steghide.
-
+Herramienta para ocultar información confidencial y que no pueda ser vista por personas no autorizadas en imagenes, audios y archivos, utilizando una técnica llamada esteganografía que se basa en la modificación de archivos de texto, imagenes, audio. vídeo, código fuente o archivos de datos.<br>Steghide no proporciona una protección de seguridad fuerte, lo que hace posible que la información pueda ser detectada mediante software especializado.<br>
+Instalación: `` sudo apt install steghide ``<br>
+Ocultar un archivo llamado "secreto.txt" en una imagen llamada "imagen.jpg".
+```
+steghide embed -ef secreto.txt -cf imagen.jpg
+```
+Extraer el contenido almacenado detras de una imagen llamda "imagen.jpg".
+```
+steghide extract -sf imagen.jpg
+```
 <br><br>
 ## Fixgz.
-Reparar archivos corruptos.
+Reparar archivos corruptos .gz.
 
 <br><br>
 ## Macchanger.
@@ -302,29 +402,61 @@ Reparar archivos corruptos.
 
 <br><br>
 ## Davtest.
-
+Herramienta que sirve para probar la configuración y la funcionalidad de un servidor WebDAV (Web Distributed Authoring and Versioning). WebDAV es un protocolo que permite la edición y la administración de documentos en un servidor web de manera remota, utilizando HTTP o HTTPS.<br>Davtest envía solicitudes HTTP a un servidor WebDAV y verifica que se pueden realizar operaciones básicas, como subir y descargar archivos, crear y eliminar directorios y verificar que el servodor está configurado de manera adecuada. También se puede utilizar para probar la autenticación y autorización en el servidor WebDAV y para verificar que se está utilizando una conexción segura (HTTPS).<br>
+Instalación: `` sudo apt install davtest ``
+```
+davtest -url https://<url>
+```
 <br><br>
 ## Html2text.
-
+Convierte documentos HTML (Hypertext Markup Language) en formato de texto simple sin que se interpreten las etiquetas.<br>
+Instalación: `` sudo apt install html2text ``
+```
+html2text documento.html > documento.txt
+```
 <br><br>
 ## Htmlq.
 
 <br><br>
 ## Tshark.
-
-<br><br>
-## Snmp.
-
+Analiza y examina el tráfico de red, ademas captura y guarda el tráfico en un archivo para despues poderlo análizar.<br>
+Examinar el tráfico de la interfaz de red eth0 y guardar el resultado en un archivo .pcap.
+```
+tshark -i eth0 -w captura.pcap
+# -i -> Indicar la interfaz de red.
+# -w -> Especificar el nombre del archivo en que se guardará la captura de tráfico de red.
+```
 <br><br>
 ## Onesixtyone.
-
+Es una herramienta de escaneo de red que prueba la seguridad de dispositivos que utilizan el protocolo SNMP (Simple Network Management Protocol). Onesixtyone envía solicitudes SNMP a los dispositivos de red (routers, switches y hubs) y analiza las respuestas para detectar vulnerabilidades y problemas de seguridad.<br>
+Onesixtyone se utiliza comúnmente durante el proceso de pruebas de penetración para evaluar la seguridad de los dispositivos de red. También se puede utilizar para detectar dispositivos que tengan contraseñas débiles o que no estén configurados adecuadamente.<br>
+Escanear un dispositivo de red que tenga como contraseña "public".
+```
+onesixtyone -c public <ip-address>
+# -c -> Especificar una contraseña.
+# public es una contraseña por defecto utilizada en el protocolo SNMP para permitir el acceso a la información.
+```
+Escanear un rango de direcciones IP.
+```
+onesixtyone -c <password> 192.168.1.1-254
+```
+Escanear un archivo que contenga direcciones IP.
+```
+onesixtyone -c <password> -i <ips.txt>
+# -i -> Especificar el nombre del archivo que contiene las direcciones IP.
+```
 <br><br>
 ## Pwdtools.
 
 <br><br>
 ## Locate.
-
-
+Herramienta de búsqueda de archivos y directorios que utiliza una base de datos que incluye los nuevos archivos que se añaden y elimina las archivos eliminados para realizar busquedas de manera rápida y eficiente. Practicamente localiza la ruta absoluta donde se encuentra almacenado el archivo que estas buscando.<br>
+Install: `` sudo apt install locate ``<br>
+Buscar el binario python3.
+```
+locate python3 
+/usr/bin/python3
+```
 
 
 
