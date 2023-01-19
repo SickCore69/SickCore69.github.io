@@ -37,7 +37,28 @@ done; wait
 
 tput cnorm			# Recuperar el cursor al finálizar el script.
 ```
+<br><br>
+## portScan.sh.
+Script en bash para escanear todo el rango de puertos y te reporta solo aquellos que esten con status abierto. El script lanza una cadena vacía al /dev/tcp y en base al código de estado te dice si está abierto un puerto.
+```
+#!/bin/bash
 
+function ctrl_c(){
+	echo -e "\n\n[!] Saliendo...\n"
+	tput cnorm; exit 1 
+}
+
+# Ctrl+C
+trap ctrl_ INT 
+
+tput civis
+
+for port in $(seq 1 65535); do
+	timeout 1 bash -c "echo '' > /dev/tcp/<ip-address>/$port" 2>/dev/null && echo "[+] El Puerto $port - Abierto" &
+done; wait
+
+tput cnorm
+```
 
 
 
