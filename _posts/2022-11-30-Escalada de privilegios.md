@@ -146,7 +146,7 @@ sudo -l -> ALL/ALL
 bash -p 
 ```
 <br><br>
-## Library Jihacking.
+## Library Hijacking.
 Consiste en suplantar una librería de python que un script.py importe al ejecutarse.<br>
 ¿Como se realiza esta técnica? Lo primero que tendras que hacer es identificar un script.py que se ejecute en el sistema, abres el script.py y revisas que librerías esta importando el script.py.<br> Una vez que hallaz identificado las librerías que se importan lo que vas a hacer es crear un script.py pero con el nombre de una de las librerías que importa el script. Dentro de la librería que acabas de crear vas a añadir código malicioso que te permita cambiar los privilegios de la bash. Lo que hace el script.py al ejecutarse es que al importar las librerías sigue un orden que depende del path(secuencia de directorios que se recorren para llegar a un archivo). Por lo regular parte de la ruta actual donde se sitúa y de allí recorre los demas directorios en busca de las librerías.<br>
 Entonces si creas una archivo con el nombre de una librería que importe el script.py tomará está primero debido a que esta situada en el mismo lugar que el script.py y esta librería hará lo que tu le indiques dentro del script.<br>
@@ -196,8 +196,8 @@ ls -la ./usr/local/bin/backup -> -rwsr-xr-- 1 root admin 16484 Sep  3  2017 ./us
 ```
 groups <username> # Con este comando puedes ver los grupos a los cuales pertenece un usuario.
 ```
-<b> Path Jihacking.</b>
-- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Jihacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y le concatenas un less para ver la sálida del comando strings desde el inicio.
+<b> Path Hijacking.</b>
+- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Hijacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y le concatenas un less para ver la sálida del comando strings desde el inicio.
 ```
 strings ./opt/statuscheck | less 
 
