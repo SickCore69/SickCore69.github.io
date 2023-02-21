@@ -176,8 +176,11 @@ smbserver.py smbFolder $(pwd) -smb2support
 ## Chisel.
 Es utilizado para crear túneles seguros entre dispositivos en una red. Chisel te permite conectarte de forma segura a un servidor remoto a tráves de un puerto no seguro. En el hacking chisel es usado a menudo para hacer port forwarding(enrutamiento de puertos) que consiste en redirigir el tráfico de un puerto a otro de una máquina remota o local.<br>
 Instalación: `` wget https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_arm64.gz ``
+Hacer uso de chisel para aplicar un RPF (Remote Port Forwarding).
 ```
+./chisel server --reverse -p 1234   
 
+./chisel client <ip-address>:1234 R:80:<ip-address>:80
 ```
 <br><br>
 ## Evil-winrm.
