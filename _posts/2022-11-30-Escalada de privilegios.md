@@ -197,7 +197,7 @@ ls -la ./usr/local/bin/backup -> -rwsr-xr-- 1 root admin 16484 Sep  3  2017 ./us
 groups <username> # Con este comando puedes ver los grupos a los cuales pertenece un usuario.
 ```
 <b> Path Hijacking.</b>
-- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Hijacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y le concatenas un less para ver la sálida del comando strings desde el inicio.
+- ./opt/statuscheck.<br>Este es ejemplo de un binario compilado el cual el vulnerable a un <b>Path Hijacking</b>. Con el comando strings puedes listar las cadenas de carácteres imprimibles y le concatenas un less para ver la sálida del comando strings desde el inicio.<br>
 ```
 strings ./opt/statuscheck | less 
 

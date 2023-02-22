@@ -49,7 +49,7 @@ function ctrl_c(){
 }
 
 # Ctrl+C
-trap ctrl_ INT 
+trap ctrl_c INT 
 
 tput civis
 
