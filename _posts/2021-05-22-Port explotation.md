@@ -47,7 +47,7 @@ searchsploit vsFTPd 2.3.44 -> unix/remote/49757.py -> Backdoor Command Execution
 	  		   -> pass
 ```
 <br><br>
-En la versión 1.3.5 de FTP existe una vulnerabilidad que te permite copiar archivos del sistema (CPFR y CPTO) a una ruta que tenga capacidad de lectura (anonymous) haciendo uso del comando `` site cpfr `` y `` site cpto `` sin que tengas que llegar a autenticarte al protocola FTP.<br>
+En la versión 1.3.5 de FTP existe una vulnerabilidad que te permite copiar archivos del sistema (CPFR y CPTO) a una ruta que tenga capacidad de lectura (anonymous) haciendo uso del comando `` site cpfr `` y `` site cpto `` sin que tengas que llegar a autenticarte al protocolo FTP.<br>
 Uso:
 ```
 ftp <ip-address>
@@ -62,7 +62,7 @@ ftp> site help
 CPFR <sp> pathname 
 CPTO <sp> pathname
 ```
-Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/<username>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
+Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
 ```
 site cpfr /etc/shadow	                        
 # Es la ruta donde se situa el archivo que quieres copiar.
