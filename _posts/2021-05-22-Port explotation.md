@@ -62,7 +62,7 @@ ftp> site help
 CPFR <sp> pathname 
 CPTO <sp> pathname
 ```
-Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
+Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.<br>
 ```
 site cpfr /etc/shadow	                        
 # Es la ruta donde se situa el archivo que quieres copiar.
