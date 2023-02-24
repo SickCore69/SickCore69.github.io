@@ -33,6 +33,7 @@ Estos son algunos de los comandos que puedes utilizar una vez estes conectado al
 - ls -la -> Listar por archivos ocultos.
 - put <name_file> -> Verificar si se tiene capacidad de escritura y así modificar un archivo de la máquina.
   * Ej; put file | put /etc/passwd
+
 <br>  
 En caso de que se alla detectado la versión vsFTPd 2.3.44 al hacer el escaneo, debes buscar con la herramienta searchsploit un exploit que te permita explotar un backdoor que tiene esa versión, y así poder ejecutar comandos de forma remota (RCE) y enviarte una reverse shell para ganar acceso al sistema.
 <br> 
@@ -62,7 +63,8 @@ ftp> site help
 CPFR <sp> pathname 
 CPTO <sp> pathname
 ```
-Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.<br>
+<br>
+Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
 ```
 site cpfr /etc/shadow	                        
 # Es la ruta donde se situa el archivo que quieres copiar.
