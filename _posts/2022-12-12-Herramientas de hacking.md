@@ -217,9 +217,23 @@ crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'	# Verificar si el h
 ## John The Ripper.
 Herramienta utilizada para probar la seguridad de las contraseñas mediante el uso de diccionarios. John the ripper utiliza diferentes tipos de algoritmos para decifrar contraseñas como MD5, SHA1, SHA2, DES, Blowfish y AES.<br>
 Instalación: `` sudo apt install john ``<br>
+Descifrar un hash.
 ```
-john --wordlist=</ruta/del/diccionario/rockyou.txt> <hash>	# Descifrar un hash
+john --wordlist=</ruta/del/diccionario/rockyou.txt> <hash>
+```
+Descifrar el /etc/shadow.
+```
+john -w:</ruta/del/diccionario/rockyou.txt> shadow	
+```
+Fucionar el archivo /etc/passwd y el /etc/shadow en un archivo.txt para posteriormente crackear las contraseñas.
+```
+unshadow <passwd> <shadow> > password.txt # Fusión de los archivos. 
 
+john -w:rockyou.txt passwords.txt
+
+john --show <archivo.txt> # Muestra las contraseñas obtenidas.
+```
+```
 zip2john archivo.zip > archivo.zip.john		
 # Se genera un archivo compatible con john para poder crackear la contraseña con la cual fue cifrado el archivo.zip
 
