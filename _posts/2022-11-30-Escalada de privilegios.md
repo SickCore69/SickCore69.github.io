@@ -163,13 +163,22 @@ bash -p
 ```
 <br><br>
 ## cat /etc/crontab | crontab -l.
-Con este comando puedes ver las tareas cron programadas en el sistema y posteriormente aprovecharte de una de ellas para injectar código malicioso. <br>
+Con este comando puedes ver las tareas cron programadas en el sistema y posteriormente aprovecharte de una de ellas para inyectar código malicioso. <br>
 Las tareas cron por lo regular llegar a ser scripts relacionados con correos, bases de datos o comprobación de rutinas programadas con presición para que se ejecuten en una determinada fecha y hora.<br>
 Uno como atacante puede ver las que tareas estan por ejecutarse y modificarlas agregando una linea que en el script que al ejecutarse le cambie los permisos a la bash por SUID.
 ```
 chmod u+s /bin/bash
 chmod 4755 /bin/bash
 watch -c 1 /bin/bash 	# Comando para monitorizar el cambio de permisos en la bash
+```
+<br>
+<b>PSPY</b><br>
+Es una herramienta que te ayuda a identificar tareas o comandos que se estén ejecutando en el sistema.<br>
+Descarga: `` https://github.com/DominicBreuker/pspy/releases ``. "Descargar el pspy64".
+<br>
+Para hacer uso de esta herramienta es necesario que la transfieras a la máquina víctima, asignarle permisos de ejecución y ejecutarla.
+```
+./pspy64
 ```
 <br><br>
 ## find \\-perm -4000 -user root -ls 2>/dev/null.
