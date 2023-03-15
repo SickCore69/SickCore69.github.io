@@ -439,12 +439,17 @@ html2text documento.html > documento.txt
 
 <br><br>
 ## Tshark.
-Analiza y examina el tráfico de red, ademas captura y guarda el tráfico en un archivo para despues poderlo análizar.<br>
+Analiza y examina el tráfico de red, ademas captura y guarda el tráfico en un archivo para despues poderlo análizar.
+<br>
 Examinar el tráfico de la interfaz de red eth0 y guardar el resultado en un archivo .pcap.
 ```
 tshark -i eth0 -w captura.pcap
 # -i -> Indicar la interfaz de red.
 # -w -> Especificar el nombre del archivo en que se guardará la captura de tráfico de red.
+```
+Leer el contenido de una captura y filtrar por aquellos paquetes que contienen el protocolo FTP.
+```
+tshark -r captura.cap -Y "ftp" 
 ```
 <br><br>
 ## Onesixtyone.
