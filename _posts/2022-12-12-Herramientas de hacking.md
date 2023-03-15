@@ -344,7 +344,10 @@ Para utilizar TCPDump, debes específicar  una serie de opciones y filtros para 
 * -w <archivo.txt>: Escribe la captura de paquetes en un archivo en lugar de mostrarlo en pantalla.
 * host <ip-address>: Filtra los paquetes que se envían o reciben desde un host. Ejemplo host 192.168.0.1 capturaría los paquetes que se envían desde el host con la dirección IP 192.168.0.1.
 * port <port>: Filtra los paquetes que utiliza un puerto. Ejemplo port 80 capturariá los paquetes que utilizan el puerto 80.
-
+```
+tcmpdump -D
+# Ver las interfaces de red por las cuales te puedes poner es escucha.
+```
 ```
 tcpdump -i <interfaz-de-red>
 # Monitoreo de del tráfico de  una red. 
