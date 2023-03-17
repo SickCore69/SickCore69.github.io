@@ -199,20 +199,39 @@ exiftool TAG=VALUE image.jpg # Editar metadatos de un archivo.
 ```
 <br><br>
 ## Crackmapexec.
-Herramienta diseñada para escanear y explotar vulnerabilidades en servidores de red y dispositivos. Con crackmapexec puedes conectarte a diferentes servidores (SMB, HTTP, SSH, RDP y mssql). Puedes ver información acerca del equipo, ver si un usuario y contraseña son válidos en el sistema, listar recursos compartidos o probar si un hash pertenece al usuario Administrador.
+Herramienta diseñada para escanear y explotar vulnerabilidades en servidores de red y dispositivos. Con crackmapexec puedes conectarte a diferentes servidores (SMB, HTTP, SSH, RDP y mssql). Puedes ver información acerca del equipo, ver si un usuario y contraseña son válidos en el sistema, listar recursos compartidos o probar si un hash pertenece al usuario Administrador.<br>
+Instalación: `` pipx install crackmapexec ``<br>
+<br>
+Escaneo de vulnerabilidades a todo segmento de red en el  protocolo SMB.
 ```
-crackmapexec smb -s <ip-address/24> 	# Escaneo de vulnerabilidades a todo segmento de red en el  protocolo SMB.
-
+crackmapexec smb -s <ip-address>/24
+```
+<br>
+Ver información acerca del equipo como; la versión del sistema operativo, ver el nombre del dominio o si el SMB esta firmado.
+```
 crackmapexec smb <ip-address> 		
-# Ver información acerca del equipo como la versión del sistema operativo, ver el nombre del dominio o si el SMB esta firmado.
-
-crackmapexec smb <ip-address> -u '<username>' -p '<password>'	# Ver si un usuario y contraseña son válidos en el sistema.
-
-crackmapexec smb <ip-address> -u 'null' -p ' ' --shares	
-# Listar los recursos compartidos en el sistema haciendo uso de un null session.
-
-crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'	# Verificar si el hash pertenece al usuario Administrador.
 ```
+<br>
+Ver si un usuario y contraseña son válidos en el sistema.
+```
+crackmapexec smb <ip-address> -u '<username>' -p '<password>'
+```
+<br>
+Aplicar fuerza bruta al protocolo SMB para encontra una contraseña.
+```
+crackmapexec smb <ip-address> -u '<username>' -p /usr/share/SecLists/Passwords/darkc0de.txt 2>/dev/null 
+```
+<br>
+Listar los recursos compartidos en el sistema haciendo uso de un null session.
+```
+crackmapexec smb <ip-address> -u 'null' -p ' ' --shares	
+```
+<br>
+Verificar si un hash pertenece al usuario Administrador.
+```
+crackmapexec smb <ip-address> -u 'Administrator' -H '<hash>'
+```
+
 <br><br>
 ## John The Ripper.
 Herramienta utilizada para probar la seguridad de las contraseñas mediante el uso de diccionarios. John the ripper utiliza diferentes tipos de algoritmos para decifrar contraseñas como MD5, SHA1, SHA2, DES, Blowfish y AES.<br>
@@ -221,10 +240,12 @@ Descifrar un hash.
 ```
 john --wordlist=</ruta/del/diccionario/rockyou.txt> <hash>
 ```
+<br>
 Descifrar el /etc/shadow.
 ```
 john -w:</ruta/del/diccionario/rockyou.txt> shadow	
 ```
+<br>
 Fucionar el archivo /etc/passwd y el /etc/shadow en un archivo.txt para posteriormente crackear las contraseñas.
 ```
 unshadow <passwd> <shadow> > password.txt # Fusión de los archivos. 
@@ -233,9 +254,10 @@ john -w:rockyou.txt passwords.txt
 
 john --show <archivo.txt> # Muestra las contraseñas obtenidas.
 ```
+<br>
+Con el siguiente comando se genera un archivo .zip.john compatible con john para poder crackear la contraseña con la cual fue cifrado el archivo.zip.
 ```
 zip2john archivo.zip > archivo.zip.john		
-# Se genera un archivo compatible con john para poder crackear la contraseña con la cual fue cifrado el archivo.zip
 
 zip2john archivo.zip.john	# Ya solo ejecuta el comando para descifrar la contraseña
 
