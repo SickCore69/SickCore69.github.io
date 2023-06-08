@@ -273,6 +273,17 @@ wpscan --url https://<ip-address>    # Escaneo para detectar problemas de config
 wpscan --url https://<nombre-dominio> --enumerate    # Enumerar usuarios, plugins y temas.
 wpscan --url http://<ip-address> -U <username> -P <pasword-list>    # Aplicar fuerza bruta. 
 ```
+<br>
+Enumerar plugins de manera agresiva para encontrar más cosas.
+```
+wpscan --url http://<ip-address> --enumerate u,vp --plugins-detection aggresive
+```
+Uso de wpscan para que se te reporten vulnerabilidades asociadas a la versión en uso.
+```
+wpscan --url http://<ip-address> --enumerate u,vp --plugins-detection aggresive --api-token=<token>
+
+wpscan --url http://<ip-address> --enumerate u,vp --plugins-detection aggresive --api-token=$WPSCAN
+```
 <br><br>
 ## Wafw00f.
 Esta herramienta detecta sistemas de proctección de aplicaciones web(Web Aplication Firewall) en una dirección IP o un sitio web para saber si se esta utilizando uno y en todo caso te muestra información detallada del tipo de WAF en uso inclutendo la versión y fabricante.<br>
